@@ -3,6 +3,7 @@
 import argparse
 import json
 from .core import acquire, advance, choose_next, connect, initialize, snapshot
+from .planner import complete, install, next_task
 
 
 def main(argv=None):
@@ -13,6 +14,17 @@ def main(argv=None):
     start.add_argument("goal")
     start.add_argument("--constraint", action="append", default=[])
     commands.add_parser("status")
+    commands.add_parser("next")
+    plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
+    plan.add_argument("file")
+    plan.add_argument("checkpoint", type=int)
+    plan.add_argument("owner")
+    done = commands.add_parser("task-record")
+    done.add_argument("id")
+    done.add_argument("checkpoint", type=int)
+    done.add_argument("owner")
+    done.add_argument("outcome", choices=["verified", "blocked", "pending"])
+    done.add_argument("--evidence", action="append", default=[])
     lease = commands.add_parser("acquire")
     lease.add_argument("owner")
     lease.add_argument("--ttl", type=int, default=300)
@@ -29,7 +41,15 @@ def main(argv=None):
             result = initialize(db, args.goal, args.constraint)
         elif args.command == "status":
             result = snapshot(db)
-            result["next_prompt"] = choose_next(result)
+            result["next_prompt"] = next_task(db)["prompt"]
+            result["task_progress"] = [dict(row) for row in db.execute("SELECT * FROM progress ORDER BY id")]
+        elif args.command == "next":
+            result = next_task(db)
+        elif args.command == "plan-load":
+            with open(args.file, encoding="utf-8") as source:
+                result = install(db, json.load(source)["components"], args.checkpoint, args.owner)
+        elif args.command == "task-record":
+            result = complete(db, args.id, args.outcome, args.evidence, args.checkpoint, args.owner)
         elif args.command == "acquire":
             result = acquire(db, args.owner, args.ttl)
         else:

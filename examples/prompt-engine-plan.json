@@ -1,0 +1,12 @@
+{
+  "components": [
+    {"id":"scope","desc":"Record user-confirmed 72 distinct supplied repository minimum for lightweight and 300 for master; preserve their counting evidence separately","deps":[],"check":"Read decision record and assert no descriptions or framework citations count as operational integrations"},
+    {"id":"corpus","desc":"Import and deduplicate the supplied 434-repository inventory with source status and pinned revisions","deps":["scope"],"check":"434 unique corpus URLs; each inspected candidate has a full revision and primary code evidence"},
+    {"id":"first-adapter","desc":"Implement a real source-backed adapter behind a versioned input/output contract","deps":["corpus"],"check":"Execute adapter on a real fixture, verify observable behavior and link source revision and license"},
+    {"id":"evidence-ledger","desc":"Track inspected, selected, implemented, tested and accepted source counts independently","deps":["first-adapter"],"check":"Ledger refuses acceptance without code path, pinned source and passing behavioral evidence"},
+    {"id":"lightweight-batch","desc":"Integrate distinct useful supplied repositories into the lightweight engine in dependency-ordered batches","deps":["evidence-ledger"],"check":"At least 72 distinct corpus repositories have running integrations with individual source revision and passing behavior checks"},
+    {"id":"lightweight-demo","desc":"Demonstrate goal through generated continuation prompt, recovery and audit in the lightweight edition","deps":["lightweight-batch"],"check":"Reproducible end-to-end run and measured footprint; independent audit validates at least 72 integrations"},
+    {"id":"master-batch","desc":"Extend verified integration batches to the master edition","deps":["evidence-ledger"],"check":"At least 300 distinct corpus repositories have running integrations with individual source revision and passing behavior checks"},
+    {"id":"master-demo","desc":"Demonstrate end-to-end master planning, prompt continuation, recovery and independent audit","deps":["master-batch","lightweight-demo"],"check":"Reproducible end-to-end demonstration, tests and independent review confirm master acceptance"}
+  ]
+}

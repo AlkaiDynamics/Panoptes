@@ -4,7 +4,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from panoptes.core import StaleCheckpoint, WriterBusy, acquire, advance, choose_next, connect, initialize, snapshot
+from panoptes.core import (StaleCheckpoint, WriterBusy, acquire, advance, choose_next,
+                           connect, initialize, record_decision, snapshot)
 
 
 class ContinuationTests(unittest.TestCase):
@@ -40,6 +41,44 @@ class ContinuationTests(unittest.TestCase):
         prompt = choose_next(state)
         self.assertIn('Authoritative constraints (JSON): ["Preserve decisions",', prompt)
         self.assertIn(self.SAFETY_CONSTRAINT, prompt)
+
+    def test_user_correction_appends_and_supersedes_without_overwrite(self):
+        acquire(self.db, "writer", now=100)
+        first = record_decision(
+            self.db, "D-004", "Which repository?", "unknown", None,
+            ["No destination supplied"], "project record", "2026-09-23T04:00:00Z",
+            "writer", now=101)
+        self.assertEqual(first["checkpoint"], 1)
+        acquire(self.db, "writer", now=102)
+        corrected = record_decision(
+            self.db, "D-009", "Which repository?", "confirmed",
+            "https://github.com/AlkaiDynamics/Panoptes", ["User supplied repository URL"],
+            "user", "2026-09-23T10:00:00Z", "writer", ["D-004"], now=103)
+        self.assertEqual([item["id"] for item in corrected["decisions"]], ["D-004", "D-009"])
+        self.assertEqual(corrected["decisions"][0]["status"], "superseded")
+        self.assertEqual(corrected["decisions"][0]["value"], None)
+        self.assertEqual(corrected["decisions"][1]["status"], "confirmed")
+        self.db.close()
+        self.db = connect(self.path)
+        prompt = choose_next(snapshot(self.db))
+        self.assertIn('"id": "D-004"', prompt)
+        self.assertIn('"id": "D-009"', prompt)
+
+    def test_decision_history_rejects_rewrite_and_double_supersession(self):
+        acquire(self.db, "writer", now=100)
+        record_decision(self.db, "D-001", "Question", "unknown", None, [],
+                        "record", "2026-09-23T04:00:00Z", "writer", now=101)
+        acquire(self.db, "writer", now=102)
+        with self.assertRaises(Exception):
+            record_decision(self.db, "D-001", "Changed", "confirmed", "overwrite", [],
+                            "user", "2026-09-23T05:00:00Z", "writer", now=103)
+        acquire(self.db, "writer", now=104)
+        record_decision(self.db, "D-002", "Question", "confirmed", "answer", [],
+                        "user", "2026-09-23T06:00:00Z", "writer", ["D-001"], now=105)
+        acquire(self.db, "writer", now=106)
+        with self.assertRaises(ValueError):
+            record_decision(self.db, "D-003", "Question", "confirmed", "other", [],
+                            "user", "2026-09-23T07:00:00Z", "writer", ["D-001"], now=107)
 
     def test_duplicate_and_stale_runs(self):
         acquire(self.db, "a", now=100)

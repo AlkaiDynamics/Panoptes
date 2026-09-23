@@ -61,6 +61,18 @@ def initialize(db, goal, constraints=()):
                 next_prompt TEXT NOT NULL,
                 input_json TEXT NOT NULL
             )""")
+        db.execute("""CREATE TABLE IF NOT EXISTS decisions (
+                decision_id TEXT PRIMARY KEY,
+                question TEXT NOT NULL,
+                status TEXT NOT NULL,
+                value TEXT,
+                evidence_json TEXT NOT NULL,
+                authority TEXT NOT NULL,
+                recorded_at TEXT NOT NULL,
+                supersedes_json TEXT NOT NULL
+            )""")
+        db.execute("CREATE TABLE IF NOT EXISTS plan (singleton INTEGER PRIMARY KEY CHECK (singleton=1), payload TEXT NOT NULL)")
+        db.execute("CREATE TABLE IF NOT EXISTS progress (id TEXT PRIMARY KEY, status TEXT NOT NULL, evidence_json TEXT NOT NULL)")
         # The first initializer owns the goal. Re-initialization never changes it.
         db.execute("INSERT OR IGNORE INTO state(singleton, checkpoint, goal, constraints_json) VALUES(1, 0, ?, ?)",
                    (goal.strip(), json.dumps(list(constraints))))
@@ -71,10 +83,23 @@ def snapshot(db):
     row = db.execute("SELECT * FROM state WHERE singleton=1").fetchone()
     if row is None:
         raise ValueError("initialize the state first")
+    decisions = []
+    superseded = set()
+    for item in db.execute("SELECT * FROM decisions ORDER BY recorded_at, decision_id"):
+        targets = json.loads(item["supersedes_json"])
+        superseded.update(targets)
+        decisions.append({"id": item["decision_id"], "question": item["question"],
+                          "status": item["status"], "value": item["value"],
+                          "evidence": json.loads(item["evidence_json"]),
+                          "authority": item["authority"], "recorded_at": item["recorded_at"],
+                          "supersedes": targets})
+    for decision in decisions:
+        if decision["id"] in superseded:
+            decision["status"] = "superseded"
     return {"checkpoint": row["checkpoint"], "goal": row["goal"],
             "constraints": json.loads(row["constraints_json"]),
             "destination": row["destination"], "lease_owner": row["lease_owner"],
-            "lease_until": row["lease_until"]}
+            "lease_until": row["lease_until"], "decisions": decisions}
 
 
 def choose_next(state):
@@ -83,11 +108,43 @@ def choose_next(state):
     else:
         task = "Check the repository and latest checkpoint, then implement the smallest dependency-unblocking task with evidence."
     constraints = json.dumps(state["constraints"], ensure_ascii=False)
+    decisions = json.dumps(state.get("decisions", []), ensure_ascii=False, sort_keys=True)
     return (f"Goal: {state['goal']}\nCheckpoint: {state['checkpoint']}\n"
             f"Destination: {state['destination'] or 'UNRESOLVED'}\n"
             f"Authoritative constraints (JSON): {constraints}\n"
+            f"Decision history (JSON): {decisions}\n"
             f"Next bounded task: {task}\n"
             "Preserve user corrections and source evidence. Do not claim an integration from a description or a mock result.")
+
+
+def record_decision(db, decision_id, question, status, value, evidence, authority,
+                    recorded_at, owner, supersedes=(), now=None):
+    """Append a decision; corrections point backward and never rewrite history."""
+    if status not in {"confirmed", "inferred", "unknown"}:
+        raise ValueError("new decision status must be confirmed, inferred, or unknown")
+    if not decision_id or not question or not authority or not recorded_at or not owner:
+        raise ValueError("decision ID, question, authority, timestamp, and owner are required")
+    if not isinstance(evidence, list) or not all(isinstance(item, str) for item in evidence):
+        raise ValueError("evidence must be a list of strings")
+    supersedes = list(supersedes)
+    if decision_id in supersedes or len(supersedes) != len(set(supersedes)):
+        raise ValueError("supersession targets must be unique prior decisions")
+    now = time.time() if now is None else now
+    with write(db):
+        state = snapshot(db)
+        if state["lease_owner"] != owner or state["lease_until"] <= now:
+            raise WriterBusy("acquire a live writer lease before recording a decision")
+        known = {decision["id"]: decision for decision in state["decisions"]}
+        for target in supersedes:
+            if target not in known:
+                raise ValueError(f"unknown supersession target: {target}")
+            if known[target]["status"] == "superseded":
+                raise ValueError(f"decision already superseded: {target}")
+        db.execute("INSERT INTO decisions VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+                   (decision_id, question, status, value, json.dumps(evidence), authority,
+                    recorded_at, json.dumps(supersedes)))
+        db.execute("UPDATE state SET checkpoint=checkpoint+1, lease_owner=NULL, lease_until=0 WHERE singleton=1")
+    return snapshot(db)
 
 
 def acquire(db, owner, ttl=300, now=None):
