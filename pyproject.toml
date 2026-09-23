@@ -13,3 +13,6 @@ panoptes = "panoptes.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["panoptes*"]
+
+[tool.setuptools.package-data]
+panoptes = ["data/*.csv", "data/*.json"]

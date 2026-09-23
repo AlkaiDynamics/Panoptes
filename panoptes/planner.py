@@ -17,8 +17,8 @@ ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}\Z")
 
 def validate(components):
     """Reject malformed, circular, or unbounded agent-authored plans."""
-    if not isinstance(components, list) or not 1 <= len(components) <= 434:
-        raise ValueError("plan must have 1..434 components")
+    if not isinstance(components, list) or not 1 <= len(components) <= 900:
+        raise ValueError("plan must have 1..900 components")
     by_id = {}
     for task in components:
         if not isinstance(task, dict) or set(task) != {"id", "desc", "deps", "check"}:
@@ -94,9 +94,13 @@ def next_task(db):
         for dep in task["deps"]:
             children[dep].append(task["id"])
 
+    depths = {}
+
     def depth(ident):
-        remaining = [depth(c) for c in children[ident] if progress[c] != "verified"]
-        return 1 + max(remaining, default=0)
+        if ident not in depths:
+            remaining = [depth(c) for c in children[ident] if progress[c] != "verified"]
+            depths[ident] = 1 + max(remaining, default=0)
+        return depths[ident]
 
     ready = [t for t in tasks.values() if progress[t["id"]] == "pending"
              and all(progress[d] == "verified" for d in t["deps"])]

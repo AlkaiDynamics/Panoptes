@@ -4,6 +4,7 @@ import argparse
 import json
 from .core import acquire, advance, choose_next, connect, initialize, snapshot
 from .planner import complete, install, next_task
+from .corpus import campaign
 
 
 def main(argv=None):
@@ -15,6 +16,9 @@ def main(argv=None):
     start.add_argument("--constraint", action="append", default=[])
     commands.add_parser("status")
     commands.add_parser("next")
+    generate = commands.add_parser("campaign", help="Generate an evidence-gated candidate plan from the bundled corpus")
+    generate.add_argument("--target", type=int, choices=[72, 300], default=72)
+    generate.add_argument("--output", help="Save a full plan JSON to this path")
     plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
     plan.add_argument("file")
     plan.add_argument("checkpoint", type=int)
@@ -36,6 +40,19 @@ def main(argv=None):
     record.add_argument("--evidence", action="append", default=[])
     record.add_argument("--destination")
     args = parser.parse_args(argv)
+    if args.command == "campaign":
+        result = campaign(args.target)
+        if args.output:
+            with open(args.output, "w", encoding="utf-8") as output:
+                json.dump(result, output, indent=2)
+                output.write("\n")
+            result = {"output": args.output, "corpus_size": result["corpus_size"],
+                      "candidate_count": result["candidate_count"],
+                      "tasks": len(result["components"]),
+                      "operational_integrations_claimed": 0,
+                      "first_candidate": result["candidates"][0]}
+        print(json.dumps(result, indent=2))
+        return
     with connect(args.db) as db:
         if args.command == "init":
             result = initialize(db, args.goal, args.constraint)

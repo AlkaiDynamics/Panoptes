@@ -1,0 +1,97 @@
+{
+  "schema_version": "0.1",
+  "corpus_sha256": "6520ef649162b2e6f61469a0d39fedfd0d07e32c6924a428317c22b3f9ce6265",
+  "inspection_definition": "partial_code_inspection means named files at a pinned revision were read; it does not mean the repository was exhaustively reviewed or executed",
+  "sources": [
+    {
+      "url": "https://github.com/qwadratic/create-mvp",
+      "revision": "1b61d541a4712a7571db2a3fbd2dee0fc9cbff1d",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["engine/build.mk", "bin/create-mvp", "Makefile"],
+      "labels": {"confirmed": ["planning_decision", "agents_orchestration", "execution_automation"], "contradicted": [], "unverified": ["interface_visualization", "data_connectors_tools"]},
+      "license": {"reported": "MIT", "evidence": "https://api.github.com/repos/qwadratic/create-mvp", "file_read": false},
+      "constraints": "GNU make, bash, jq, and agent CLI for non-mock execution",
+      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+    },
+    {
+      "url": "https://github.com/alib8b8/aflare",
+      "revision": "668da8e2037f20cc2805213fc4ab336edb02154e",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["internal/memory/persistent_store.go", "go.mod", "LICENSE"],
+      "labels": {"confirmed": ["memory_knowledge"], "contradicted": [], "unverified": ["planning_decision", "reasoning_inference", "agents_orchestration", "execution_automation", "reliability_state", "data_connectors_tools"]},
+      "license": {"reported": "AGPL-3.0", "evidence": "https://github.com/alib8b8/aflare/blob/668da8e2037f20cc2805213fc4ab336edb02154e/LICENSE", "file_read": true},
+      "constraints": "Go 1.26; license review before copying or bundling",
+      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+    },
+    {
+      "url": "https://github.com/AmanPriyanshu/GeneticPromptLab",
+      "revision": "9b0d8e8e71ea48eb6eae0ef56bcc77e3e5375d4a",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["GeneticPromptLab/qa_optim.py", "requirements.txt", "LICENSE"],
+      "labels": {"confirmed": ["prompt_optimization", "verification_evaluation"], "contradicted": ["model_training_adaptation"], "unverified": ["execution_automation"]},
+      "license": {"reported": "MIT", "evidence": "https://github.com/AmanPriyanshu/GeneticPromptLab/blob/9b0d8e8e71ea48eb6eae0ef56bcc77e3e5375d4a/LICENSE", "file_read": true},
+      "constraints": "Python ML dependencies; mutable shared function template merits concurrency review",
+      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+    },
+    {
+      "url": "https://github.com/ncz-os/mnemos",
+      "revision": "e0271cc52b9a05feddf44e3d1b1d5412abe8be1a",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["mnemos/mcp/tools/memory.py", "pyproject.toml"],
+      "labels": {"confirmed": ["memory_knowledge", "data_connectors_tools"], "contradicted": [], "unverified": ["agents_orchestration", "software_engineering"]},
+      "license": {"reported": "Apache-2.0", "evidence": "https://github.com/ncz-os/mnemos/blob/e0271cc52b9a05feddf44e3d1b1d5412abe8be1a/pyproject.toml", "file_read": false},
+      "constraints": "Python >=3.13; default namespace stamp is not access isolation for ID-based operations",
+      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+    },
+    {
+      "url": "https://github.com/mims-harvard/Qworld",
+      "revision": "9f342a638d1624dd9a717936e835d3d8624f53f7",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["qworld/agents.py", "qworld/client.py", "pyproject.toml"],
+      "labels": {"confirmed": ["verification_evaluation"], "contradicted": [], "unverified": []},
+      "license": {"reported": "MIT", "evidence": "https://api.github.com/repos/mims-harvard/Qworld", "file_read": false},
+      "constraints": "Python >=3.9; model/provider SDKs and embeddings can add cost",
+      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+    },
+    {
+      "url": "https://github.com/shivangdoshi07/brainstormer",
+      "revision": "cbe68eb23715a024b46af60fbaab00d28fcb49b5",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["backend/index.js", "backend/diagramBuilder.js", "backend/package.json", "frontend/package.json", "LICENSE"],
+      "labels": {"confirmed": ["interface_visualization", "data_connectors_tools", "planning_decision"], "contradicted": ["other_uncertain"], "unverified": []},
+      "license": {"reported": "Apache-2.0", "evidence": "https://github.com/shivangdoshi07/brainstormer/blob/cbe68eb23715a024b46af60fbaab00d28fcb49b5/LICENSE", "file_read": true},
+      "constraints": "React/Excalidraw frontend, Express/Socket.IO backend, Ollama or OpenAI-compatible provider; sessions are in-memory and CORS is unrestricted in inspected server code",
+      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+    },
+    {
+      "url": "https://github.com/alrece/loop-engineering",
+      "revision": "cc361d30aa1835b0ddd5d3974459ac95b190e4b0",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["SKILL.md", "workflows/loop-state.md", "workflows/loop-orchestrate.md", "scripts/loop-adversarial.sh", "README.md"],
+      "labels": {"confirmed": ["planning_decision", "agents_orchestration", "verification_evaluation", "execution_automation", "interface_visualization", "data_connectors_tools"], "contradicted": [], "unverified": []},
+      "license": {"reported": "UNKNOWN", "evidence": "https://api.github.com/repos/alrece/loop-engineering", "file_read": false},
+      "constraints": "No LICENSE file in inspected tree; tightly coupled to gstack, OpenSpec, GSD, Superpowers, CCG, Codex/Gemini wrapper and several UI skills; default autonomous mode auto-selects decisions and permits --force gate bypass",
+      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+    },
+    {
+      "url": "https://github.com/wangshengyi-del/PNSA",
+      "revision": null,
+      "status": "assessed_empty_repository",
+      "evidence_paths": [],
+      "labels": {"confirmed": [], "contradicted": [], "unverified": ["other_uncertain"]},
+      "license": {"reported": "UNKNOWN", "evidence": "https://api.github.com/repos/wangshengyi-del/PNSA", "file_read": false},
+      "constraints": "GitHub returned repository size 0 and HTTP 409 'Git Repository is empty' for the default-branch commit on 2026-09-23; no code revision can be pinned or inspected until upstream content appears",
+      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+    },
+    {
+      "url": "https://github.com/Hiteshgottapu/ReAct-AI",
+      "revision": "341df6f49a2f2f626900731ba18c7345b9a1a343",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["src/ai/flows/generate-research-summary.ts", "src/ai/flows/collect-ai-feedback.ts", "src/lib/linkProcessor.ts", "firestore.rules", "package.json", "docs/blueprint.md"],
+      "labels": {"confirmed": ["memory_knowledge", "execution_automation", "governance_safety", "research_science", "interface_visualization", "data_connectors_tools"], "contradicted": ["reasoning_inference", "agents_orchestration", "verification_evaluation"], "unverified": []},
+      "license": {"reported": "UNKNOWN", "evidence": "https://api.github.com/repos/Hiteshgottapu/ReAct-AI", "file_read": false},
+      "constraints": "No LICENSE file in inspected tree; single structured summarization flow rather than ReAct/multi-agent implementation; feedback server flow is explicitly a no-op; PDF extraction is a placeholder; URL fetching and headless browsing require SSRF and isolation review",
+      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+    }
+  ]
+}

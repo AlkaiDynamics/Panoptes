@@ -1,7 +1,35 @@
-# Operational planning slice
+# Operational end-to-end planning pipeline
 
-Panoptes adopts the bounded component DAG and gated completion pattern from
-[`qwadratic/create-mvp` at `1b61d541a4712a7571db2a3fbd2dee0fc9cbff1d`](https://github.com/qwadratic/create-mvp/tree/1b61d541a4712a7571db2a3fbd2dee0fc9cbff1d/engine), MIT licensed. It adapts that framework to durable SQLite state rather than copying its Makefile or invoking coding agents. The algorithms are dependency validation with cycle rejection, longest remaining dependency chain selection, evidence-gated task completion, and blocked-work planning fallback. Dependency fanout is bounded by the 434-source corpus; no shell commands from agent-authored plans run automatically.
+Panoptes runs the actual `build.mk` engine from
+[`qwadratic/create-mvp` at `1b61d541a4712a7571db2a3fbd2dee0fc9cbff1d`](https://github.com/qwadratic/create-mvp/tree/1b61d541a4712a7571db2a3fbd2dee0fc9cbff1d/engine), MIT licensed. Its original license is in `vendor/create-mvp/LICENSE`. One local patch puts its effort-budget jq expression on one recipe line: the pinned original's multiline single-quoted expression passed literal backslashes to jq here and failed. The Panoptes adapter implements the engine's `plan`, `build` and `review` roles and builds actual corpus planning artifacts. GNU Make, Bash, jq and Python are required; no coding-agent CLI or API key is required for this deterministic planning pipeline.
+
+Run the goal through planning, dependency-ordered parallel builds, per-component checks and final review:
+
+```sh
+make -C examples/e2e -j2
+cat examples/e2e/build/report.md
+python -m panoptes.cli campaign --target 72 --output /tmp/panoptes-72.json
+python -m panoptes.cli campaign --target 300 --output /tmp/panoptes-300.json
+```
+
+The 434-source inventory, provisional capability labels and eight partial
+source inspections are bundled. The empty repository is excluded from
+candidacy. The 72-source campaign has 145 inspection/integration/audit tasks;
+the master campaign has 601. Both plans explicitly claim **zero** completed
+integrations. Checks independently regenerate the plans and reject tampering;
+`make` resumes completed components. The reviewer certifies planning
+artifacts only. A generated task is not an implementation of a source.
+
+The SQLite continuation interface uses dependency validation with cycle
+rejection, longest remaining dependency chain selection, evidence-gated task
+completion and a blocked-work planning fallback. Load the generated plan:
+
+```sh
+python -m panoptes.cli --db /tmp/panoptes-72.sqlite3 init 'Deliver 72 distinct supplied repositories' --constraint 'Require observable integration evidence'
+python -m panoptes.cli --db /tmp/panoptes-72.sqlite3 acquire writer
+python -m panoptes.cli --db /tmp/panoptes-72.sqlite3 plan-load /tmp/panoptes-72.json 0 writer
+python -m panoptes.cli --db /tmp/panoptes-72.sqlite3 next
+```
 
 Run from this project directory (Python 3.11+):
 
@@ -16,3 +44,11 @@ python -m panoptes.cli --db /tmp/panoptes-example.sqlite3 task-record scope 1 wr
 ```
 
 Each subsequent task uses the checkpoint from `status`, a fresh `acquire`, and `task-record`. A blocked task is recorded with its exact reason. If all available work is blocked, `next` supplies independent planning work and never disables an alarm. `status` shows current task states and next prompt. Installing a different graph over an existing plan fails to prevent silent scope replacement; changing plans requires explicit migration. This CLI plans and emits prompts; no scheduler dispatch or agent execution is wired yet. The sample graph is a roadmap, not proof of 72 or 300 integrations. No source besides the adapted planning framework can be counted as implemented by these files.
+
+## Current product boundary
+
+The legacy sample graph above is an optional small CLI example. The Make
+adapter now runs the upstream planning engine end to end and verifies the
+generated campaigns. Its final `VERDICT: PASS` is scoped to planning artifacts.
+Autonomous implementation of source integrations, external scheduler dispatch,
+and independent acceptance of 72/300 operational repositories remain open.
