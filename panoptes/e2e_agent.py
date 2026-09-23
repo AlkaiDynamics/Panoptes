@@ -9,7 +9,7 @@ import os
 import sys
 from pathlib import Path
 
-from .corpus import campaign, load_corpus
+from .corpus import campaign, integration_ledger, load_corpus
 from .planner import validate
 
 
@@ -48,10 +48,13 @@ def expected(ident):
         expanded = {v["url"] for v in master["candidates"]}
         if len(inventory["sources"]) != 434 or not compact.issubset(expanded):
             raise ValueError("campaign source set or inventory drift")
+        ledger = integration_ledger()
         return {"kind": "planning_audit", "corpus_sources": len(inventory["sources"]),
                 "lightweight_distinct_candidates": len(compact),
                 "master_distinct_candidates": len(expanded),
-                "operational_integrations_accepted": 0,
+                "operational_integrations_implemented": ledger["implemented"],
+                "operational_integrations_tested": ledger["tested"],
+                "operational_integrations_accepted": ledger["accepted"],
                 "verdict": "planning pipeline verified; product integration acceptance pending"}
     raise ValueError(f"unknown component: {ident}")
 
@@ -103,7 +106,9 @@ def main(argv=None):
         for ident in _location():
             verify(ident)
         print("Panoptes candidate planning artifacts checked against bundled corpus.")
-        print("Accepted source integrations: 0. Product MVP remains open.")
+        ledger = integration_ledger()
+        print(f"Implemented/tested/accepted source contributions: {ledger['implemented']}/{ledger['tested']}/{ledger['accepted']}.")
+        print("Product MVP remains open.")
         print("VERDICT: PASS")
     else:
         raise ValueError("invalid role or arguments")

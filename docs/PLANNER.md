@@ -10,6 +10,7 @@ make -C examples/e2e -j2
 cat examples/e2e/build/report.md
 python -m panoptes.cli campaign --target 72 --output /tmp/panoptes-72.json
 python -m panoptes.cli campaign --target 300 --output /tmp/panoptes-300.json
+python -m panoptes.cli ledger
 ```
 
 The 434-source inventory, provisional capability labels and eight partial
@@ -18,7 +19,11 @@ candidacy. The 72-source campaign has 145 inspection/integration/audit tasks;
 the master campaign has 601. Both plans explicitly claim **zero** completed
 integrations. Checks independently regenerate the plans and reject tampering;
 `make` resumes completed components. The reviewer certifies planning
-artifacts only. A generated task is not an implementation of a source.
+artifacts only. A generated task is not an implementation of a source. The
+bundled contribution ledger (`panoptes/data/integration_evidence.json`) records
+the pinned `create-mvp` engine as one **implemented and tested** source, with
+the Makefile code path, behavior test and original MIT license. Its formal
+accepted count remains zero pending independent acceptance of the contribution.
 
 The SQLite continuation interface uses dependency validation with cycle
 rejection, longest remaining dependency chain selection, evidence-gated task

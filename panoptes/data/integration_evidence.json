@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "contributions": [
+    {
+      "repository": "qwadratic/create-mvp",
+      "url": "https://github.com/qwadratic/create-mvp",
+      "source_revision": "1b61d541a4712a7571db2a3fbd2dee0fc9cbff1d",
+      "source_paths": ["engine/build.mk", "LICENSE"],
+      "license": "MIT",
+      "implementation_paths": ["vendor/create-mvp/build.mk", "panoptes/e2e_agent.py", "examples/e2e/Makefile"],
+      "behavior_test_paths": ["tests/test_e2e.py", "tests/test_corpus.py"],
+      "observed_outcome": "Actual GNU Make pipeline completed goal -> plan -> parallel builds -> checks -> final review, generating independently checked 72/300 candidate planning artifacts; tamper test rejected altered candidate count.",
+      "local_patch": "Single-line rewrite of jq effort expression in build.mk required for jq 1.7 here; document in docs/PLANNER.md.",
+      "selected": true,
+      "implemented": true,
+      "tested_in_engine": true,
+      "accepted": false,
+      "acceptance_reason": "Independent source-specific contribution review is pending; 72/300 product editions are incomplete."
+    }
+  ]
+}

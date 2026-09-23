@@ -29,7 +29,7 @@ class EndToEndPlannerTests(unittest.TestCase):
             self.assertEqual(first.returncode, 0, first.stderr + first.stdout)
             report = (run / "build/report.md").read_text()
             self.assertIn("VERDICT: PASS", report)
-            self.assertIn("Accepted source integrations: 0", report)
+            self.assertIn("Implemented/tested/accepted source contributions: 1/1/0", report)
             self.assertEqual(len(list((run / "build").glob("*.done"))), 4)
             second = call("make")
             self.assertEqual(second.returncode, 0, second.stderr)

@@ -4,7 +4,7 @@ import argparse
 import json
 from .core import acquire, advance, choose_next, connect, initialize, snapshot
 from .planner import complete, install, next_task
-from .corpus import campaign
+from .corpus import campaign, integration_ledger
 
 
 def main(argv=None):
@@ -16,6 +16,7 @@ def main(argv=None):
     start.add_argument("--constraint", action="append", default=[])
     commands.add_parser("status")
     commands.add_parser("next")
+    commands.add_parser("ledger", help="Report implemented, tested, and accepted source counts")
     generate = commands.add_parser("campaign", help="Generate an evidence-gated candidate plan from the bundled corpus")
     generate.add_argument("--target", type=int, choices=[72, 300], default=72)
     generate.add_argument("--output", help="Save a full plan JSON to this path")
@@ -40,6 +41,9 @@ def main(argv=None):
     record.add_argument("--evidence", action="append", default=[])
     record.add_argument("--destination")
     args = parser.parse_args(argv)
+    if args.command == "ledger":
+        print(json.dumps(integration_ledger(), indent=2))
+        return
     if args.command == "campaign":
         result = campaign(args.target)
         if args.output:

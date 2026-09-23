@@ -107,3 +107,32 @@ def campaign(target=72, rows=None):
                             "pinned_revision": item["pinned_revision"],
                             "hypothesis_labels": item["hypothesis_labels"]} for item in chosen],
             "components": tasks}
+
+
+def integration_ledger():
+    """Separate actual adapter progress from candidate and inspection counts."""
+    source = files("panoptes").joinpath("data", "integration_evidence.json")
+    with source.open(encoding="utf-8") as stream:
+        contributions = json.load(stream)["contributions"]
+    corpus = {row["url"] for row in load_corpus()}
+    seen = set()
+    for item in contributions:
+        if item["url"] not in corpus or item["url"] in seen:
+            raise ValueError("integration evidence must use distinct supplied sources")
+        seen.add(item["url"])
+        revision = item["source_revision"]
+        if len(revision) != 40 or any(c not in "0123456789abcdef" for c in revision):
+            raise ValueError("source revision must be an immutable SHA")
+        if item["tested_in_engine"] and not item["implemented"]:
+            raise ValueError("test cannot precede implementation")
+        if item["accepted"] and (not item["tested_in_engine"] or not item.get("independent_review")):
+            raise ValueError("acceptance requires tests and independent review")
+        root = files("panoptes").joinpath("..")
+        if any(not root.joinpath(p).is_file() for p in item["implementation_paths"] + item["behavior_test_paths"]):
+            raise ValueError("source implementation or behavior test is missing")
+    return {"sources": len(corpus),
+            "selected": sum(bool(i["selected"]) for i in contributions),
+            "implemented": sum(bool(i["implemented"]) for i in contributions),
+            "tested": sum(bool(i["tested_in_engine"]) for i in contributions),
+            "accepted": sum(bool(i["accepted"]) for i in contributions),
+            "contributions": contributions}
