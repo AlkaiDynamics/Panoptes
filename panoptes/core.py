@@ -82,8 +82,10 @@ def choose_next(state):
         task = "Resolve destination from the latest user decision, then inspect the repository. Meanwhile refine the product contract and source evidence."
     else:
         task = "Check the repository and latest checkpoint, then implement the smallest dependency-unblocking task with evidence."
+    constraints = json.dumps(state["constraints"], ensure_ascii=False)
     return (f"Goal: {state['goal']}\nCheckpoint: {state['checkpoint']}\n"
             f"Destination: {state['destination'] or 'UNRESOLVED'}\n"
+            f"Authoritative constraints (JSON): {constraints}\n"
             f"Next bounded task: {task}\n"
             "Preserve user corrections and source evidence. Do not claim an integration from a description or a mock result.")
 

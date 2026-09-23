@@ -4,15 +4,17 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from panoptes.core import StaleCheckpoint, WriterBusy, acquire, advance, connect, initialize, snapshot
+from panoptes.core import StaleCheckpoint, WriterBusy, acquire, advance, choose_next, connect, initialize, snapshot
 
 
 class ContinuationTests(unittest.TestCase):
+    SAFETY_CONSTRAINT = "Do not merge, deploy, or publish without established authority."
+
     def setUp(self):
         self.folder = tempfile.TemporaryDirectory()
         self.path = Path(self.folder.name) / "state.sqlite3"
         self.db = connect(self.path)
-        initialize(self.db, "Build a prompt engine", ["Preserve decisions"])
+        initialize(self.db, "Build a prompt engine", ["Preserve decisions", self.SAFETY_CONSTRAINT])
 
     def tearDown(self):
         self.db.close()
@@ -22,6 +24,7 @@ class ContinuationTests(unittest.TestCase):
         acquire(self.db, "writer", now=100)
         first = advance(self.db, "R-001", 0, "writer", "blocked", ["repository absent"], now=101)
         self.assertIn("UNRESOLVED", first["next_prompt"])
+        self.assertIn(self.SAFETY_CONSTRAINT, first["next_prompt"])
         self.assertEqual(snapshot(self.db)["checkpoint"], 1)
         self.db.close()
         self.db = connect(self.path)
@@ -29,7 +32,14 @@ class ContinuationTests(unittest.TestCase):
         corrected = advance(self.db, "R-002", 1, "writer", "verified",
                             ["user supplied Panoptes"], destination="https://github.com/AlkaiDynamics/Panoptes", now=103)
         self.assertIn("AlkaiDynamics/Panoptes", corrected["next_prompt"])
-        self.assertEqual(snapshot(self.db)["constraints"], ["Preserve decisions"])
+        self.assertIn(self.SAFETY_CONSTRAINT, corrected["next_prompt"])
+        self.assertEqual(snapshot(self.db)["constraints"], ["Preserve decisions", self.SAFETY_CONSTRAINT])
+
+    def test_status_prompt_preserves_constraints_exactly(self):
+        state = snapshot(self.db)
+        prompt = choose_next(state)
+        self.assertIn('Authoritative constraints (JSON): ["Preserve decisions",', prompt)
+        self.assertIn(self.SAFETY_CONSTRAINT, prompt)
 
     def test_duplicate_and_stale_runs(self):
         acquire(self.db, "a", now=100)
