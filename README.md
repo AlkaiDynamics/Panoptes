@@ -15,11 +15,15 @@ python -c 'import json; print(json.load(open("examples/e2e/src/audit/artifact.js
 python -m panoptes.cli campaign --target 72 --output /tmp/panoptes-72.json
 python -m panoptes.cli campaign --target 300 --output /tmp/panoptes-300.json
 python -m panoptes.cli ledger
+# With a separately operated Mnemos service:
+MNEMOS_BASE=http://localhost:8000 MNEMOS_API_KEY=... \
+  python -m panoptes.cli memory-search 'latest Panoptes checkpoint' --category projects
 ```
 
-See [details](docs/PLANNER.md). The source ledger records two implemented and
-tested contributions (the planning framework and evidence-gated audit prompt
-wrapper), with **zero accepted operational repository integrations**. The
+See [details](docs/PLANNER.md). The source ledger records three implemented and
+tested contributions (planning framework, evidence-gated audit wrapper, and a
+Mnemos memory-service adapter), with **zero independently accepted operational
+repository integrations**. The
 current review certifies planning artifacts and prompt construction only.
 Completion of the 72 and 300 source products requires source-specific code,
 behavior tests and independent audit.

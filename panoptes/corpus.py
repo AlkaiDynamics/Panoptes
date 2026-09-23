@@ -44,6 +44,7 @@ def load_corpus(path=None, hypotheses_path=None):
             entry = inspected[row["url"]]
             row["inspection_status"] = entry["status"]
             row["pinned_revision"] = entry.get("revision", "")
+            row["integration_disposition"] = entry.get("integration_disposition", "")
     if len(rows) < 72:
         raise ValueError("corpus cannot supply 72 distinct repositories")
     return rows
@@ -105,6 +106,7 @@ def campaign(target=72, rows=None):
             "candidates": [{"repository": item["repository"], "url": item["url"],
                             "inspection_status": item["inspection_status"],
                             "pinned_revision": item["pinned_revision"],
+                            "integration_disposition": item.get("integration_disposition", ""),
                             "hypothesis_labels": item["hypothesis_labels"]} for item in chosen],
             "components": tasks}
 

@@ -2,9 +2,11 @@
 
 import argparse
 import json
+import os
 from .core import acquire, advance, choose_next, connect, initialize, snapshot
 from .planner import complete, install, next_task
 from .corpus import campaign, integration_ledger
+from .integrations.mnemos import MnemosClient
 
 
 def main(argv=None):
@@ -20,6 +22,20 @@ def main(argv=None):
     generate = commands.add_parser("campaign", help="Generate an evidence-gated candidate plan from the bundled corpus")
     generate.add_argument("--target", type=int, choices=[72, 300], default=72)
     generate.add_argument("--output", help="Save a full plan JSON to this path")
+    memory_search = commands.add_parser("memory-search", help="Search a configured Mnemos service")
+    memory_search.add_argument("query")
+    memory_search.add_argument("--base-url", default=os.environ.get("MNEMOS_BASE", "http://localhost:8000"))
+    memory_search.add_argument("--api-key-env", default="MNEMOS_API_KEY")
+    memory_search.add_argument("--category")
+    memory_search.add_argument("--limit", type=int, default=10)
+    memory_search.add_argument("--semantic", action="store_true")
+    memory_store = commands.add_parser("memory-store", help="Store a durable item in a configured Mnemos service")
+    memory_store.add_argument("content")
+    memory_store.add_argument("--base-url", default=os.environ.get("MNEMOS_BASE", "http://localhost:8000"))
+    memory_store.add_argument("--api-key-env", default="MNEMOS_API_KEY")
+    memory_store.add_argument("--category", default="projects")
+    memory_store.add_argument("--subcategory")
+    memory_store.add_argument("--metadata-json", default="{}")
     plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
     plan.add_argument("file")
     plan.add_argument("checkpoint", type=int)
@@ -55,6 +71,19 @@ def main(argv=None):
                       "tasks": len(result["components"]),
                       "operational_integrations_claimed": 0,
                       "first_candidate": result["candidates"][0]}
+        print(json.dumps(result, indent=2))
+        return
+    if args.command in {"memory-search", "memory-store"}:
+        client = MnemosClient(args.base_url, api_key=os.environ.get(args.api_key_env))
+        if args.command == "memory-search":
+            result = client.search(args.query, category=args.category, limit=args.limit,
+                                   semantic=args.semantic)
+        else:
+            metadata = json.loads(args.metadata_json)
+            if not isinstance(metadata, dict):
+                raise ValueError("--metadata-json must contain a JSON object")
+            result = client.create(args.content, category=args.category,
+                                   subcategory=args.subcategory, metadata=metadata)
         print(json.dumps(result, indent=2))
         return
     with connect(args.db) as db:

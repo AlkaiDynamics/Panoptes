@@ -64,7 +64,8 @@ def expected(ident):
         implemented = {i["url"] for i in ledger["contributions"]
                        if i["implemented"] and i["tested_in_engine"]}
         next_candidate = next(((i, row) for i, row in enumerate(lightweight["candidates"], 1)
-                               if row["url"] not in implemented), None)
+                               if row["url"] not in implemented
+                               and not row.get("integration_disposition", "").startswith("deferred")), None)
         next_prompt = (
             f"Next task [inspect-source-{next_candidate[0]:03d}]: inspect "
             f"{next_candidate[1]['repository']} at a pinned revision; verify "

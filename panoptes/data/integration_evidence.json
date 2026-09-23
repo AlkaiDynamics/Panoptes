@@ -32,6 +32,22 @@
       "tested_in_engine": true,
       "accepted": false,
       "acceptance_reason": "Operational prompt wrapping is tested, but behavioral effectiveness and independent source-specific audit are outstanding."
+    },
+    {
+      "repository": "ncz-os/mnemos",
+      "url": "https://github.com/ncz-os/mnemos",
+      "source_revision": "e0271cc52b9a05feddf44e3d1b1d5412abe8be1a",
+      "source_paths": ["mnemos/api/routes/memories.py", "mnemos/domain/models.py", "docs/connectors/openai-custom-gpt.md", "integrations/hermes/optional-skills/memory/mnemos/SKILL.md", "pyproject.toml", "LICENSE"],
+      "license": "Apache-2.0",
+      "implementation_paths": ["panoptes/integrations/mnemos.py", "panoptes/integrations/__init__.py", "panoptes/cli.py"],
+      "behavior_test_paths": ["tests/test_mnemos.py"],
+      "observed_outcome": "A dependency-free Python 3.11 client and CLI sent authenticated JSON through a real local HTTP connection using Mnemos POST /v1/memories/search and POST /v1/memories contracts; tests verified request paths, bodies, bearer auth, response parsing, safe error handling and endpoint validation.",
+      "local_patch": "No upstream code copied. Panoptes implements the pinned public REST contract and keeps Mnemos behind a separately operated service boundary because upstream requires Python 3.13 and substantial runtime dependencies.",
+      "selected": true,
+      "implemented": true,
+      "tested_in_engine": true,
+      "accepted": false,
+      "acceptance_reason": "Contract-shaped HTTP behavior is tested locally, but a live pinned Mnemos deployment and independent source-specific review are outstanding."
     }
   ]
 }

@@ -38,16 +38,37 @@ Original copyright and license are retained in
 prompt construction, not proof that the submitted excerpts are authentic, that
 an LLM follows the scaffold, or that an independent audit occurred. Scoring
 prompt generation rejects missing or mismatched source records and cannot set
-any acceptance flags. The ledger now tracks two implemented and tested source
-contributions; accepted remains zero until independent review.
+any acceptance flags.
 
-Continuation is ledger-aware: because the first two listed candidate sources
-already have implemented/tested contributions, the current audit artifact
-points to candidate 003 (`Hiteshgottapu/ReAct-AI`) for a source/license/fit
-inspection, while the independent audit of contributions 001 and 002 can
-proceed separately. Candidate 003 has no verified reuse license in the pinned
-inspection; do not copy it without resolving rights or choosing a distinct
-suitable source from the remaining corpus. This is a next task, not approval.
+The third implemented and tested contribution interoperates with the pinned,
+Apache-2.0 [`ncz-os/mnemos` v1 API at
+`e0271cc52b9a05feddf44e3d1b1d5412abe8be1a`](https://github.com/ncz-os/mnemos/tree/e0271cc52b9a05feddf44e3d1b1d5412abe8be1a).
+Because upstream requires Python 3.13 and substantial service dependencies,
+Panoptes supplies a dependency-free Python 3.11 JSON-over-HTTP adapter rather
+than embedding the server. An administrator must provide a trusted root URL;
+redirects and credentialed or path-bearing base URLs are rejected so bearer
+keys stay bound to the configured origin. The CLI reads the key from an
+environment variable rather than a command-line value:
+
+```sh
+export MNEMOS_BASE=http://localhost:8000
+export MNEMOS_API_KEY='scoped-service-token'
+python -m panoptes.cli memory-store 'checkpoint 12' --subcategory checkpoints --metadata-json '{"source":"panoptes"}'
+python -m panoptes.cli memory-search 'latest checkpoint' --category projects --limit 5
+```
+
+The behavior tests use a real local HTTP connection and verify upstream route
+shapes, payloads, bearer authentication, JSON responses and safe failures.
+They do not run a live Mnemos deployment, so independent acceptance remains
+open. The ledger now tracks three implemented and tested source contributions;
+accepted remains zero until independent review.
+
+Continuation is ledger-aware. Candidate 003 (`Hiteshgottapu/ReAct-AI`) is
+explicitly deferred because the pinned tree has no verified reuse license and
+several advertised paths are placeholders. The current audit artifact skips
+that blocked candidate and the already implemented Mnemos contribution, then
+points to candidate 004 (`alib8b8/aflare`) for the next bounded source/license/
+fit decision. A deferred source contributes zero to the 72/300 goals.
 
 The SQLite continuation interface uses dependency validation with cycle
 rejection, longest remaining dependency chain selection, evidence-gated task
@@ -72,7 +93,7 @@ python -m panoptes.cli --db /tmp/panoptes-example.sqlite3 acquire writer
 python -m panoptes.cli --db /tmp/panoptes-example.sqlite3 task-record scope 1 writer verified --evidence 'User confirmed distinct 72 minimum'
 ```
 
-Each subsequent task uses the checkpoint from `status`, a fresh `acquire`, and `task-record`. A blocked task is recorded with its exact reason. If all available work is blocked, `next` supplies independent planning work and never disables an alarm. `status` shows current task states and next prompt. Installing a different graph over an existing plan fails to prevent silent scope replacement; changing plans requires explicit migration. This CLI plans and emits prompts; no scheduler dispatch or agent execution is wired yet. The sample graph is a roadmap, not proof of 72 or 300 integrations. No source besides the adapted planning framework can be counted as implemented by these files.
+Each subsequent task uses the checkpoint from `status`, a fresh `acquire`, and `task-record`. A blocked task is recorded with its exact reason. If all available work is blocked, `next` supplies independent planning work and never disables an alarm. `status` shows current task states and next prompt. Installing a different graph over an existing plan fails to prevent silent scope replacement; changing plans requires explicit migration. This CLI plans and emits prompts; no scheduler dispatch or agent execution is wired yet. The sample graph is a roadmap, not proof of 72 or 300 integrations. Only contribution-ledger entries with pinned, source-specific implementation and test evidence count as implemented; independent acceptance is a separate gate.
 
 ## Current product boundary
 

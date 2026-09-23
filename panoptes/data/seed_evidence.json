@@ -47,11 +47,11 @@
       "url": "https://github.com/ncz-os/mnemos",
       "revision": "e0271cc52b9a05feddf44e3d1b1d5412abe8be1a",
       "status": "partial_code_inspection",
-      "evidence_paths": ["mnemos/mcp/tools/memory.py", "pyproject.toml"],
+      "evidence_paths": ["mnemos/api/routes/memories.py", "mnemos/domain/models.py", "docs/connectors/openai-custom-gpt.md", "integrations/hermes/optional-skills/memory/mnemos/SKILL.md", "pyproject.toml", "LICENSE"],
       "labels": {"confirmed": ["memory_knowledge", "data_connectors_tools"], "contradicted": [], "unverified": ["agents_orchestration", "software_engineering"]},
-      "license": {"reported": "Apache-2.0", "evidence": "https://github.com/ncz-os/mnemos/blob/e0271cc52b9a05feddf44e3d1b1d5412abe8be1a/pyproject.toml", "file_read": false},
-      "constraints": "Python >=3.13; default namespace stamp is not access isolation for ID-based operations",
-      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+      "license": {"reported": "Apache-2.0", "evidence": "https://github.com/ncz-os/mnemos/blob/e0271cc52b9a05feddf44e3d1b1d5412abe8be1a/LICENSE", "file_read": true},
+      "constraints": "Upstream server requires Python >=3.13 and substantial dependencies, so Panoptes uses its documented JSON-over-HTTP v1 service boundary; administrator must configure a trusted base URL and scoped bearer token",
+      "selected": true, "implemented": true, "tested_in_engine": true, "accepted": false
     },
     {
       "url": "https://github.com/mims-harvard/Qworld",
@@ -101,6 +101,7 @@
       "labels": {"confirmed": ["memory_knowledge", "execution_automation", "governance_safety", "research_science", "interface_visualization", "data_connectors_tools"], "contradicted": ["reasoning_inference", "agents_orchestration", "verification_evaluation"], "unverified": []},
       "license": {"reported": "UNKNOWN", "evidence": "https://api.github.com/repos/Hiteshgottapu/ReAct-AI", "file_read": false},
       "constraints": "No LICENSE file in inspected tree; single structured summarization flow rather than ReAct/multi-agent implementation; feedback server flow is explicitly a no-op; PDF extraction is a placeholder; URL fetching and headless browsing require SSRF and isolation review",
+      "integration_disposition": "deferred_no_reuse_license_and_placeholder_features",
       "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
     }
   ]
