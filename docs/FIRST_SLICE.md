@@ -1,0 +1,13 @@
+# Panoptes: first continuation slice
+
+This branch implements a local, deterministic state kernel for one scheduled continuation. It stores a goal and constraints, serializes writers with a SQLite transaction and expiring owner lease, records one receipt per run ID, rejects stale checkpoints, and emits the next prompt. When the destination is missing, that prompt asks for planning work. It does not register an alarm or execute an agent. Those interfaces remain separate and require live integration tests.
+
+The user identified `AlkaiDynamics/Panoptes` as the destination after asking whether the prompt engine had a repository. The initial `main` commit is `b79411e6b88663e14819692ec2693faf5c3767f6`; the only original files are `README.md` and an Apache-2.0 `LICENSE`. The Archotraz project remains separate.
+
+Decisions still open: whether the 300/72 targets count repositories, distinct attributable features, or a hybrid; what lightweight means in measurable resource terms; which user journeys define final acceptance. This slice claims zero accepted source integrations and introduces no dependency on the supplied upstream repository corpus. The current inspection ledger reports 8 partially inspected sources, 1 empty repository and 425 unassessed sources.
+
+Run from this directory with Python 3.11+: `python -m unittest discover -s tests -v`. For a manual journey: `python -m panoptes.cli --db /tmp/panoptes-demo.sqlite3 init 'Build a prompt engine'`; then `acquire writer`; then `record R-001 0 writer blocked --evidence 'destination missing'`. A later run acquires the lease and records `R-002 1 writer verified --evidence 'user supplied destination' --destination https://github.com/AlkaiDynamics/Panoptes`. `status` prints the checkpoint and next prompt. Use a different database file for each independent demonstration.
+
+Acceptance for this slice: a missing destination yields a planning prompt; a later confirmed destination changes that prompt; duplicate receipts do not apply twice and conflicting data for an existing run ID is rejected; stale base checkpoints fail; expired leases can be reclaimed; failed runs are recorded without advancing state; state survives process restart. Full engine acceptance remains open.
+
+Continuation: preserve the confirmed destination, reconcile the provisional JSON planning contracts with this kernel's state format, and add append-only decision supersession and task selection. Then test a real scheduler invocation on this branch. Keep the 300/72 interpretation open until authoritative user direction; do not count this branch as an upstream integration.
