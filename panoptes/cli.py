@@ -7,6 +7,7 @@ from .core import acquire, advance, choose_next, connect, initialize, snapshot
 from .planner import complete, install, next_task
 from .corpus import campaign, integration_ledger
 from .integrations.mnemos import MnemosClient
+from .integrations.genetic_prompt_lab import plan_evolution_round
 
 
 def main(argv=None):
@@ -36,6 +37,10 @@ def main(argv=None):
     memory_store.add_argument("--category", default="projects")
     memory_store.add_argument("--subcategory")
     memory_store.add_argument("--metadata-json", default="{}")
+    evolve = commands.add_parser("prompt-evolve-plan", help="Plan a provider-neutral genetic prompt round")
+    evolve.add_argument("file", help="JSON file containing a population list")
+    evolve.add_argument("--mutation-rate", type=float, default=0.1)
+    evolve.add_argument("--seed", type=int, default=0)
     plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
     plan.add_argument("file")
     plan.add_argument("checkpoint", type=int)
@@ -85,6 +90,14 @@ def main(argv=None):
             result = client.create(args.content, category=args.category,
                                    subcategory=args.subcategory, metadata=metadata)
         print(json.dumps(result, indent=2))
+        return
+    if args.command == "prompt-evolve-plan":
+        with open(args.file, encoding="utf-8") as source:
+            payload = json.load(source)
+        population = payload.get("population") if isinstance(payload, dict) else payload
+        print(json.dumps(plan_evolution_round(population,
+                                              mutation_rate=args.mutation_rate,
+                                              seed=args.seed), indent=2))
         return
     with connect(args.db) as db:
         if args.command == "init":

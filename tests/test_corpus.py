@@ -11,10 +11,11 @@ class CorpusCampaignTests(unittest.TestCase):
     def test_source_evidence_separates_working_framework_from_acceptance(self):
         ledger = integration_ledger()
         self.assertTrue(ledger["local_evidence_paths_checked"])
-        self.assertEqual((ledger["selected"], ledger["implemented"], ledger["tested"], ledger["accepted"]), (3, 3, 3, 0))
+        self.assertEqual((ledger["selected"], ledger["implemented"], ledger["tested"], ledger["accepted"]), (4, 4, 4, 0))
         self.assertEqual(ledger["contributions"][0]["repository"], "qwadratic/create-mvp")
         self.assertEqual(ledger["contributions"][1]["repository"], "hermes-labs-ai/hermes-blind")
         self.assertEqual(ledger["contributions"][2]["repository"], "ncz-os/mnemos")
+        self.assertEqual(ledger["contributions"][3]["repository"], "AmanPriyanshu/GeneticPromptLab")
 
     def test_bundled_corpus_and_distinct_72_and_300_campaigns(self):
         sources = load_corpus()
@@ -31,6 +32,13 @@ class CorpusCampaignTests(unittest.TestCase):
             self.assertEqual(len(draft["candidates"]), target)
             self.assertEqual(len({s["url"] for s in draft["candidates"]}), target)
             self.assertNotIn("wangshengyi-del/PNSA", {s["repository"] for s in draft["candidates"]})
+            self.assertFalse(any(s["integration_disposition"].startswith("deferred")
+                                 for s in draft["candidates"]))
+            genetic = next(s for s in draft["candidates"]
+                           if s["repository"] == "AmanPriyanshu/GeneticPromptLab")
+            self.assertEqual(set(genetic["selection_labels"]),
+                             {"prompt_optimization", "verification_evaluation"})
+            self.assertNotIn("model_training_adaptation", genetic["selection_labels"])
             self.assertEqual(draft["operational_integrations_claimed"], 0)
             self.assertEqual(len(draft["components"]), 2 * target + 1)
             self.assertEqual(len(draft["components"][-1]["deps"]), target)

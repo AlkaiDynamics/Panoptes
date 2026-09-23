@@ -63,12 +63,28 @@ They do not run a live Mnemos deployment, so independent acceptance remains
 open. The ledger now tracks three implemented and tested source contributions;
 accepted remains zero until independent review.
 
-Continuation is ledger-aware. Candidate 003 (`Hiteshgottapu/ReAct-AI`) is
-explicitly deferred because the pinned tree has no verified reuse license and
-several advertised paths are placeholders. The current audit artifact skips
-that blocked candidate and the already implemented Mnemos contribution, then
-points to candidate 004 (`alib8b8/aflare`) for the next bounded source/license/
-fit decision. A deferred source contributes zero to the 72/300 goals.
+The fourth contribution adapts the pinned MIT
+[`AmanPriyanshu/GeneticPromptLab` optimizer at
+`9b0d8e8e71ea48eb6eae0ef56bcc77e3e5375d4a`](https://github.com/AmanPriyanshu/GeneticPromptLab/tree/9b0d8e8e71ea48eb6eae0ef56bcc77e3e5375d4a)
+into a deterministic, dependency-free round planner. It selects the best half
+of a scored population, pairs elites for crossover, schedules 25 percent fresh
+candidates and assigns seeded mutation decisions. It emits provider-neutral
+work rather than making paid model calls:
+
+```sh
+python -m panoptes.cli prompt-evolve-plan population.json --seed 17 --mutation-rate 0.1
+```
+
+The upstream MIT notice ships with the package. This verifies transformation
+queue construction, not evolved-prompt quality; accepted remains zero.
+
+Continuation is ledger-aware and the election now uses confirmed capability
+labels for inspected sources. Deferred candidates are excluded and replaced,
+so they cannot consume one of the 72 slots. `Hiteshgottapu/ReAct-AI`,
+`alib8b8/aflare` and `alrece/loop-engineering` remain recorded with their exact
+blockers but are not elected. The current audit artifact points to candidate
+004 (`shivangdoshi07/brainstormer`) for the next bounded source decision. A
+deferred source contributes zero to the 72/300 goals.
 
 The SQLite continuation interface uses dependency validation with cycle
 rejection, longest remaining dependency chain selection, evidence-gated task

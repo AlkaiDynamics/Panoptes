@@ -48,6 +48,22 @@
       "tested_in_engine": true,
       "accepted": false,
       "acceptance_reason": "Contract-shaped HTTP behavior is tested locally, but a live pinned Mnemos deployment and independent source-specific review are outstanding."
+    },
+    {
+      "repository": "AmanPriyanshu/GeneticPromptLab",
+      "url": "https://github.com/AmanPriyanshu/GeneticPromptLab",
+      "source_revision": "9b0d8e8e71ea48eb6eae0ef56bcc77e3e5375d4a",
+      "source_paths": ["GeneticPromptLab/qa_optim.py", "LICENSE"],
+      "license": "MIT",
+      "implementation_paths": ["panoptes/integrations/genetic_prompt_lab.py", "panoptes/integrations/__init__.py", "panoptes/cli.py", "panoptes/_vendor/GENETIC_PROMPT_LAB_LICENSE"],
+      "behavior_test_paths": ["tests/test_genetic_prompt_lab.py"],
+      "observed_outcome": "Panoptes deterministically selects the highest-fitness half of a scored prompt population, pairs elites for crossover, schedules a 25 percent fresh-candidate injection, and assigns seeded mutation decisions without invoking a paid model or the upstream ML dependency stack; the CLI emits the complete provider-neutral work queue.",
+      "local_patch": "Algorithmic adaptation of the pinned upstream genetic round; no upstream Python source copied. Paid GPT calls, sentence-transformer sampling and mutable function-template state are deliberately outside this lightweight adapter.",
+      "selected": true,
+      "implemented": true,
+      "tested_in_engine": true,
+      "accepted": false,
+      "acceptance_reason": "Deterministic round planning is tested, but actual transformed prompt quality and independent source-specific review remain outstanding."
     }
   ]
 }

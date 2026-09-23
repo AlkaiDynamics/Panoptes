@@ -31,6 +31,7 @@
       "labels": {"confirmed": ["memory_knowledge"], "contradicted": [], "unverified": ["planning_decision", "reasoning_inference", "agents_orchestration", "execution_automation", "reliability_state", "data_connectors_tools"]},
       "license": {"reported": "AGPL-3.0", "evidence": "https://github.com/alib8b8/aflare/blob/668da8e2037f20cc2805213fc4ab336edb02154e/LICENSE", "file_read": true},
       "constraints": "Go 1.26; license review before copying or bundling",
+      "integration_disposition": "deferred_lightweight_go126_and_agpl_boundary_review",
       "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
     },
     {
@@ -40,8 +41,8 @@
       "evidence_paths": ["GeneticPromptLab/qa_optim.py", "requirements.txt", "LICENSE"],
       "labels": {"confirmed": ["prompt_optimization", "verification_evaluation"], "contradicted": ["model_training_adaptation"], "unverified": ["execution_automation"]},
       "license": {"reported": "MIT", "evidence": "https://github.com/AmanPriyanshu/GeneticPromptLab/blob/9b0d8e8e71ea48eb6eae0ef56bcc77e3e5375d4a/LICENSE", "file_read": true},
-      "constraints": "Python ML dependencies; mutable shared function template merits concurrency review",
-      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+      "constraints": "Full upstream optimizer has Python ML dependencies and mutable shared function templates; Panoptes adopts only the provider-neutral selection/crossover/immigrant/mutation round planner",
+      "selected": true, "implemented": true, "tested_in_engine": true, "accepted": false
     },
     {
       "url": "https://github.com/ncz-os/mnemos",
@@ -81,6 +82,7 @@
       "labels": {"confirmed": ["planning_decision", "agents_orchestration", "verification_evaluation", "execution_automation", "interface_visualization", "data_connectors_tools"], "contradicted": [], "unverified": []},
       "license": {"reported": "UNKNOWN", "evidence": "https://api.github.com/repos/alrece/loop-engineering", "file_read": false},
       "constraints": "No LICENSE file in inspected tree; tightly coupled to gstack, OpenSpec, GSD, Superpowers, CCG, Codex/Gemini wrapper and several UI skills; default autonomous mode auto-selects decisions and permits --force gate bypass",
+      "integration_disposition": "deferred_no_license_and_heavy_coupling",
       "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
     },
     {

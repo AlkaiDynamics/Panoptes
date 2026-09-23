@@ -40,11 +40,20 @@ def load_corpus(path=None, hypotheses_path=None):
             raise ValueError("duplicate or noncanonical GitHub repository in corpus")
         seen.add(repo)
         row["hypothesis_labels"] = sorted(hypotheses.get(repo, ()))
+        row["confirmed_labels"] = []
+        row["selection_labels"] = row["hypothesis_labels"]
+        row["integration_disposition"] = ""
+        row["constraints"] = ""
+        row["license"] = "UNKNOWN"
         if row["url"] in inspected:
             entry = inspected[row["url"]]
             row["inspection_status"] = entry["status"]
             row["pinned_revision"] = entry.get("revision", "")
             row["integration_disposition"] = entry.get("integration_disposition", "")
+            row["confirmed_labels"] = sorted(entry.get("labels", {}).get("confirmed", ()))
+            row["selection_labels"] = row["confirmed_labels"]
+            row["constraints"] = entry.get("constraints", "")
+            row["license"] = entry.get("license", {}).get("reported", "UNKNOWN")
     if len(rows) < 72:
         raise ValueError("corpus cannot supply 72 distinct repositories")
     return rows
@@ -64,17 +73,19 @@ def campaign(target=72, rows=None):
     foundation = next((r for r in sources if r["repository"] == "qwadratic/create-mvp"), None)
     chosen = [foundation] if foundation is not None else []
     coverage = {}
-    remaining = [row for row in sources if row["inspection_status"] != "assessed_empty_repository"]
+    remaining = [row for row in sources
+                 if row["inspection_status"] != "assessed_empty_repository"
+                 and not row.get("integration_disposition", "").startswith("deferred")]
     if foundation is not None:
         remaining.remove(foundation)
-        for label in foundation["hypothesis_labels"]:
+        for label in foundation["selection_labels"]:
             coverage[label] = 1
-    if target > len(remaining):
+    if target - len(chosen) > len(remaining):
         raise ValueError("insufficient nonempty candidate repositories")
     for _ in range(target - len(chosen)):
         def score(row):
-            priority = row["hypothesis_labels"] and PRIORITY.intersection(row["hypothesis_labels"])
-            labels = priority or set(row["hypothesis_labels"])
+            priority = row["selection_labels"] and PRIORITY.intersection(row["selection_labels"])
+            labels = priority or set(row["selection_labels"])
             diversity = sum(1 / (1 + coverage.get(label, 0)) for label in labels)
             relevance = 2 if priority else 0
             # An inspected source still requires source revision and test gates.
@@ -84,7 +95,7 @@ def campaign(target=72, rows=None):
         item = max(remaining, key=score)
         remaining.remove(item)
         chosen.append(item)
-        for label in item["hypothesis_labels"]:
+        for label in item["selection_labels"]:
             coverage[label] = coverage.get(label, 0) + 1
 
     tasks = []
@@ -107,6 +118,11 @@ def campaign(target=72, rows=None):
                             "inspection_status": item["inspection_status"],
                             "pinned_revision": item["pinned_revision"],
                             "integration_disposition": item.get("integration_disposition", ""),
+                            "fit_status": ("inspected_supported" if item["inspection_status"] == "partial_code_inspection"
+                                           else "uninspected_hypothesis"),
+                            "selection_labels": item["selection_labels"],
+                            "license": item["license"],
+                            "constraints": item["constraints"],
                             "hypothesis_labels": item["hypothesis_labels"]} for item in chosen],
             "components": tasks}
 
