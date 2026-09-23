@@ -10,7 +10,8 @@ import sys
 from pathlib import Path
 
 from .corpus import campaign, integration_ledger, load_corpus
-from .planner import validate
+from .core import acquire, connect, initialize
+from .planner import install, validate
 
 
 COMPONENTS = [
@@ -49,12 +50,23 @@ def expected(ident):
         if len(inventory["sources"]) != 434 or not compact.issubset(expanded):
             raise ValueError("campaign source set or inventory drift")
         ledger = integration_ledger()
+        # Exercise the same durable planner that an hourly continuation uses,
+        # and emit its concrete first prompt as a checked pipeline artifact.
+        with connect(":memory:") as db:
+            initialize(db, "Deliver 72 distinct operational source integrations, then 300 master integrations",
+                       ["Count only pinned, tested, observable supplied-repository contributions",
+                        "Keep continuation enabled through blockers"])
+            acquire(db, "pipeline")
+            selected = install(db, lightweight["components"], 0, "pipeline")
+        if selected["status"] != "ready":
+            raise ValueError("campaign produced no actionable next task")
         return {"kind": "planning_audit", "corpus_sources": len(inventory["sources"]),
                 "lightweight_distinct_candidates": len(compact),
                 "master_distinct_candidates": len(expanded),
                 "operational_integrations_implemented": ledger["implemented"],
                 "operational_integrations_tested": ledger["tested"],
                 "operational_integrations_accepted": ledger["accepted"],
+                "next_prompt": selected["prompt"],
                 "verdict": "planning pipeline verified; product integration acceptance pending"}
     raise ValueError(f"unknown component: {ident}")
 
@@ -108,6 +120,7 @@ def main(argv=None):
         print("Panoptes candidate planning artifacts checked against bundled corpus.")
         ledger = integration_ledger()
         print(f"Implemented/tested/accepted source contributions: {ledger['implemented']}/{ledger['tested']}/{ledger['accepted']}.")
+        print("Next source-specific prompt: src/audit/artifact.json → next_prompt")
         print("Product MVP remains open.")
         print("VERDICT: PASS")
     else:

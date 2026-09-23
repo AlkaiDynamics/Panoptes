@@ -8,6 +8,7 @@ Run the goal through planning, dependency-ordered parallel builds, per-component
 ```sh
 make -C examples/e2e -j2
 cat examples/e2e/build/report.md
+python -c 'import json; print(json.load(open("examples/e2e/src/audit/artifact.json"))["next_prompt"])'
 python -m panoptes.cli campaign --target 72 --output /tmp/panoptes-72.json
 python -m panoptes.cli campaign --target 300 --output /tmp/panoptes-300.json
 python -m panoptes.cli ledger

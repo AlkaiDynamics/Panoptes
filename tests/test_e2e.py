@@ -31,6 +31,10 @@ class EndToEndPlannerTests(unittest.TestCase):
             self.assertIn("VERDICT: PASS", report)
             self.assertIn("Implemented/tested/accepted source contributions: 1/1/0", report)
             self.assertEqual(len(list((run / "build").glob("*.done"))), 4)
+            import json
+            continuation = json.loads((run / "src/audit/artifact.json").read_text())["next_prompt"]
+            self.assertIn("Next task [inspect-source-001]", continuation)
+            self.assertIn("qwadratic/create-mvp", continuation)
             second = call("make")
             self.assertEqual(second.returncode, 0, second.stderr)
             self.assertIn("Nothing to be done", second.stdout)
