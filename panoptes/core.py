@@ -189,10 +189,14 @@ def advance(db, run_id, base_checkpoint, owner, outcome, evidence, destination=N
         # so the same run cannot apply again after a later recovery.
         result = base_checkpoint + (outcome != "failed")
         new_destination = destination or state["destination"]
-        after = {**state, "checkpoint": result, "destination": new_destination}
-        prompt = choose_next(after)
         db.execute("UPDATE state SET checkpoint=?, destination=?, lease_owner=NULL, lease_until=0 WHERE singleton=1",
                    (result, new_destination))
+        # Once a plan is installed, every continuation receipt must use its
+        # dependency-aware selection rather than the generic bootstrap prompt.
+        from .planner import next_task
+        selected = next_task(db)
+        prompt = (choose_next(snapshot(db)) if selected["status"] == "plan_missing"
+                  else selected["prompt"])
         db.execute("INSERT INTO receipts VALUES(?, ?, ?, ?, ?, ?, ?)",
                    (run_id, base_checkpoint, result, outcome, json.dumps(evidence), prompt, input_json))
     return {"run_id": run_id, "checkpoint": result, "outcome": outcome,

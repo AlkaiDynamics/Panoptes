@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from panoptes.core import StaleCheckpoint, acquire, connect, initialize, snapshot
+from panoptes.core import StaleCheckpoint, acquire, advance, connect, initialize, snapshot
 from panoptes.planner import complete, install, next_task, validate
 
 
@@ -55,6 +55,12 @@ class PlannerTests(unittest.TestCase):
                  {"id": "b", "desc": "b", "deps": ["a"], "check": "check"}]
         with self.assertRaisesRegex(ValueError, "cycle"):
             validate(cycle)
+
+    def test_existing_continuation_uses_installed_plan(self):
+        install(self.db, PLAN, self.write(), "writer")
+        self.write()
+        result = advance(self.db, "run-2", 1, "writer", "blocked", ["source unavailable"])
+        self.assertIn("Next task [contract]", result["next_prompt"])
 
 
 if __name__ == "__main__":
