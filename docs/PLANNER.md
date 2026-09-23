@@ -14,7 +14,7 @@ python -m panoptes.cli campaign --target 300 --output /tmp/panoptes-300.json
 python -m panoptes.cli ledger
 ```
 
-The 434-source inventory, provisional capability labels and eight partial
+The 434-source inventory, provisional capability labels and nine partial
 source inspections are bundled. The empty repository is excluded from
 candidacy. The 72-source campaign has 145 inspection/integration/audit tasks;
 the master campaign has 601. Both plans explicitly claim **zero** completed
@@ -25,6 +25,29 @@ bundled contribution ledger (`panoptes/data/integration_evidence.json`) records
 the pinned `create-mvp` engine as one **implemented and tested** source, with
 the Makefile code path, behavior test and original MIT license. Its formal
 accepted count remains zero pending independent acceptance of the contribution.
+
+The pipeline also invokes the unmodified MIT-licensed
+[`hermes-blind` scaffold at `61c270933291e2c726d09aaa8f66edc5ab369dce`](https://github.com/hermes-labs-ai/hermes-blind/tree/61c270933291e2c726d09aaa8f66edc5ab369dce/src/hermes_blind)
+to turn a subsequently collected, nonempty source-and-test evidence packet
+into an evidence-gated scoring prompt. The Make pipeline emits an
+`audit_collection_prompt` alongside `next_prompt`; only after an
+independent reviewer has gathered evidence may they run
+`python -m panoptes.e2e_agent score audit-evidence.json`.
+Original copyright and license are retained in
+`panoptes/_vendor/HERMES_LICENSE`. This is deterministic, dependency-free
+prompt construction, not proof that the submitted excerpts are authentic, that
+an LLM follows the scaffold, or that an independent audit occurred. Scoring
+prompt generation rejects missing or mismatched source records and cannot set
+any acceptance flags. The ledger now tracks two implemented and tested source
+contributions; accepted remains zero until independent review.
+
+Continuation is ledger-aware: because the first two listed candidate sources
+already have implemented/tested contributions, the current audit artifact
+points to candidate 003 (`Hiteshgottapu/ReAct-AI`) for a source/license/fit
+inspection, while the independent audit of contributions 001 and 002 can
+proceed separately. Candidate 003 has no verified reuse license in the pinned
+inspection; do not copy it without resolving rights or choosing a distinct
+suitable source from the remaining corpus. This is a next task, not approval.
 
 The SQLite continuation interface uses dependency validation with cycle
 rejection, longest remaining dependency chain selection, evidence-gated task

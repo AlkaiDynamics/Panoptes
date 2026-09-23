@@ -16,6 +16,22 @@
       "tested_in_engine": true,
       "accepted": false,
       "acceptance_reason": "Independent source-specific contribution review is pending; 72/300 product editions are incomplete."
+    },
+    {
+      "repository": "hermes-labs-ai/hermes-blind",
+      "url": "https://github.com/hermes-labs-ai/hermes-blind",
+      "source_revision": "61c270933291e2c726d09aaa8f66edc5ab369dce",
+      "source_paths": ["src/hermes_blind/scaffold.py", "LICENSE"],
+      "license": "MIT",
+      "implementation_paths": ["panoptes/_vendor/hermes_scaffold.py", "panoptes/e2e_agent.py", "panoptes/_vendor/HERMES_LICENSE"],
+      "behavior_test_paths": ["tests/test_e2e.py"],
+      "observed_outcome": "Vendored upstream wrap() generates a scoring prompt only after a full pinned-source evidence packet is provided; Make emits a collection prompt first. Full end-to-end test verifies source-specific scoring input and rejects missing evidence and tampered collection artifacts.",
+      "local_patch": "No edits to copied upstream scaffold.py; adapter invokes its v1 wrap() directly on Panoptes audit text.",
+      "selected": true,
+      "implemented": true,
+      "tested_in_engine": true,
+      "accepted": false,
+      "acceptance_reason": "Operational prompt wrapping is tested, but behavioral effectiveness and independent source-specific audit are outstanding."
     }
   ]
 }

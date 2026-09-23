@@ -7,11 +7,21 @@
       "url": "https://github.com/qwadratic/create-mvp",
       "revision": "1b61d541a4712a7571db2a3fbd2dee0fc9cbff1d",
       "status": "partial_code_inspection",
-      "evidence_paths": ["engine/build.mk", "bin/create-mvp", "Makefile"],
+      "evidence_paths": ["engine/build.mk", "bin/create-mvp", "Makefile", "LICENSE"],
       "labels": {"confirmed": ["planning_decision", "agents_orchestration", "execution_automation"], "contradicted": [], "unverified": ["interface_visualization", "data_connectors_tools"]},
-      "license": {"reported": "MIT", "evidence": "https://api.github.com/repos/qwadratic/create-mvp", "file_read": false},
+      "license": {"reported": "MIT", "evidence": "https://github.com/qwadratic/create-mvp/blob/1b61d541a4712a7571db2a3fbd2dee0fc9cbff1d/LICENSE", "file_read": true},
       "constraints": "GNU make, bash, jq, and agent CLI for non-mock execution",
-      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+      "selected": true, "implemented": true, "tested_in_engine": true, "accepted": false
+    },
+    {
+      "url": "https://github.com/hermes-labs-ai/hermes-blind",
+      "revision": "61c270933291e2c726d09aaa8f66edc5ab369dce",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["src/hermes_blind/scaffold.py", "src/hermes_blind/__init__.py", "pyproject.toml", "LICENSE"],
+      "labels": {"confirmed": ["verification_evaluation"], "contradicted": [], "unverified": ["reliability_state", "memory_knowledge"]},
+      "license": {"reported": "MIT", "evidence": "https://github.com/hermes-labs-ai/hermes-blind/blob/61c270933291e2c726d09aaa8f66edc5ab369dce/LICENSE", "file_read": true},
+      "constraints": "Deterministic local scaffold; prompt efficacy and session-recovery portions untested; do not treat a generated audit prompt as independent audit evidence",
+      "selected": true, "implemented": true, "tested_in_engine": true, "accepted": false
     },
     {
       "url": "https://github.com/alib8b8/aflare",

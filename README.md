@@ -17,8 +17,9 @@ python -m panoptes.cli campaign --target 300 --output /tmp/panoptes-300.json
 python -m panoptes.cli ledger
 ```
 
-See [details](docs/PLANNER.md). The source ledger records one implemented and
-tested planning-framework contribution, with **zero accepted operational
-repository integrations**. The current review certifies planning artifacts.
+See [details](docs/PLANNER.md). The source ledger records two implemented and
+tested contributions (the planning framework and evidence-gated audit prompt
+wrapper), with **zero accepted operational repository integrations**. The
+current review certifies planning artifacts and prompt construction only.
 Completion of the 72 and 300 source products requires source-specific code,
 behavior tests and independent audit.

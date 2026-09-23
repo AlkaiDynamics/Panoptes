@@ -11,12 +11,16 @@ class CorpusCampaignTests(unittest.TestCase):
     def test_source_evidence_separates_working_framework_from_acceptance(self):
         ledger = integration_ledger()
         self.assertTrue(ledger["local_evidence_paths_checked"])
-        self.assertEqual((ledger["selected"], ledger["implemented"], ledger["tested"], ledger["accepted"]), (1, 1, 1, 0))
+        self.assertEqual((ledger["selected"], ledger["implemented"], ledger["tested"], ledger["accepted"]), (2, 2, 2, 0))
         self.assertEqual(ledger["contributions"][0]["repository"], "qwadratic/create-mvp")
+        self.assertEqual(ledger["contributions"][1]["repository"], "hermes-labs-ai/hermes-blind")
 
     def test_bundled_corpus_and_distinct_72_and_300_campaigns(self):
         sources = load_corpus()
         self.assertEqual(len(sources), 434)
+        hermes = next(s for s in sources if s["repository"] == "hermes-labs-ai/hermes-blind")
+        self.assertEqual(hermes["inspection_status"], "partial_code_inspection")
+        self.assertEqual(hermes["pinned_revision"], "61c270933291e2c726d09aaa8f66edc5ab369dce")
         self.assertEqual(len({source["url"] for source in sources}), 434)
         self.assertEqual(next(s for s in sources if s["repository"] == "qwadratic/create-mvp")["inspection_status"], "partial_code_inspection")
         for target in (72, 300):
