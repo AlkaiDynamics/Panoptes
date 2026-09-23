@@ -10,6 +10,7 @@ from panoptes.planner import install, next_task
 class CorpusCampaignTests(unittest.TestCase):
     def test_source_evidence_separates_working_framework_from_acceptance(self):
         ledger = integration_ledger()
+        self.assertTrue(ledger["local_evidence_paths_checked"])
         self.assertEqual((ledger["selected"], ledger["implemented"], ledger["tested"], ledger["accepted"]), (1, 1, 1, 0))
         self.assertEqual(ledger["contributions"][0]["repository"], "qwadratic/create-mvp")
 

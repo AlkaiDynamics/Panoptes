@@ -116,6 +116,8 @@ def integration_ledger():
         contributions = json.load(stream)["contributions"]
     corpus = {row["url"] for row in load_corpus()}
     seen = set()
+    root = Path(__file__).resolve().parents[1]
+    checkout_present = (root / "vendor/create-mvp/build.mk").is_file()
     for item in contributions:
         if item["url"] not in corpus or item["url"] in seen:
             raise ValueError("integration evidence must use distinct supplied sources")
@@ -127,10 +129,10 @@ def integration_ledger():
             raise ValueError("test cannot precede implementation")
         if item["accepted"] and (not item["tested_in_engine"] or not item.get("independent_review")):
             raise ValueError("acceptance requires tests and independent review")
-        root = files("panoptes").joinpath("..")
-        if any(not root.joinpath(p).is_file() for p in item["implementation_paths"] + item["behavior_test_paths"]):
+        if checkout_present and any(not (root / p).is_file() for p in item["implementation_paths"] + item["behavior_test_paths"]):
             raise ValueError("source implementation or behavior test is missing")
     return {"sources": len(corpus),
+            "local_evidence_paths_checked": checkout_present,
             "selected": sum(bool(i["selected"]) for i in contributions),
             "implemented": sum(bool(i["implemented"]) for i in contributions),
             "tested": sum(bool(i["tested_in_engine"]) for i in contributions),
