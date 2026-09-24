@@ -12,7 +12,7 @@ The current implementation combines a pinned `create-mvp` planning pipeline, a S
 | Persistent continuation state with checkpoints and writer leases | Implemented and tested |
 | Dependency-aware next-task selection and blocker fallback | Implemented and tested |
 | 72-source / 300-source campaign generation | Implemented and tested as planning artifacts |
-| Source contribution ledger | 5 implemented/tested; 0 independently accepted |
+| Source contribution ledger | 6 implemented/tested; 0 independently accepted |
 | External LLM inference | Not wired |
 | Autonomous scheduler dispatch | Not wired |
 | Completed 72-source operational integration set | Not claimed |
@@ -41,6 +41,7 @@ python -m panoptes.cli ledger
 python -m panoptes.cli campaign --target 72 --output /tmp/panoptes-72.json
 python -m panoptes.cli campaign --target 300 --output /tmp/panoptes-300.json
 python -m panoptes.cli plan-diagram /tmp/panoptes-72.json --output /tmp/panoptes-72-diagram.json
+python -m panoptes.cli criteria-run-start 'Does this release satisfy its evidence contract?' --output /tmp/panoptes-qworld-run.json
 ```
 
 The end-to-end example also emits the next bounded prompt:
@@ -58,6 +59,20 @@ Plan a deterministic provider-neutral prompt-evolution round:
 ```sh
 python -m panoptes.cli prompt-evolve-plan population.json --seed 17
 ```
+
+Run Qworld's question-specific Recursive Expansion Tree as a validated,
+provider-neutral sequence with typed artifact handoffs:
+
+```sh
+python -m panoptes.cli criteria-run-start 'Does this release satisfy its evidence contract?' --output /tmp/panoptes-qworld-run.json
+# Produce the exact JSON collection requested by next_task, then advance atomically:
+python -m panoptes.cli criteria-run-advance /tmp/panoptes-qworld-run.json stage-result.json --output /tmp/panoptes-qworld-run.json
+```
+
+Repeat the advance command until `status` is `pending_review`. Each successor
+prompt contains the validated prerequisite artifacts and revision; generic or
+stale receipts are rejected. `pending_review` is deliberately not acceptance:
+the proposed rubric still requires independent qualitative review.
 
 Query a separately operated Mnemos service:
 

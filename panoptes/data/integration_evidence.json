@@ -80,6 +80,22 @@
       "tested_in_engine": true,
       "accepted": false,
       "acceptance_reason": "Deterministic full-campaign projection is tested, but import into a live Excalidraw surface and independent source-specific review remain outstanding."
+    },
+    {
+      "repository": "mims-harvard/Qworld",
+      "url": "https://github.com/mims-harvard/Qworld",
+      "source_revision": "9f342a638d1624dd9a717936e835d3d8624f53f7",
+      "source_paths": ["qworld/agents.py", "qworld/schemas.py", "skills/qworld-criteria-generation/SKILL.md", "pyproject.toml", "LICENSE"],
+      "license": "MIT",
+      "implementation_paths": ["panoptes/integrations/qworld.py", "panoptes/e2e_agent.py", "panoptes/cli.py", "panoptes/_vendor/QWORLD_LICENSE"],
+      "behavior_test_paths": ["tests/test_qworld.py", "tests/test_e2e.py"],
+      "observed_outcome": "Panoptes executes Qworld's complete 17-stage Recursive Expansion Tree as a durable typed run: scenario grounding plus 3 expansion rounds, perspective generation plus 4 expansion rounds and review, criteria generation plus 3 expansion rounds and review, polarity checking, and score calibration. Every successor prompt contains validated prerequisite artifacts and a monotonic revision. Tests reach pending_review and prove that generic or stale receipts, schema and lineage loss, inconsistent state, destructive calibration, polarity reversal, and unsupported score balance fail closed.",
+      "local_patch": "Provider-neutral algorithmic adaptation of the pinned Qworld RET workflow and output contracts with bounded collections, atomic CLI persistence, and a fail-fast single-writer lock; no upstream Python source is copied. Provider clients, paid inference, embeddings, NumPy, scikit-learn and model SDKs remain outside the lightweight adapter.",
+      "selected": true,
+      "implemented": true,
+      "tested_in_engine": true,
+      "accepted": false,
+      "acceptance_reason": "The typed RET execution and end-to-end attachment are tested through pending_review, but generated rubric quality and independent source-specific review remain outstanding."
     }
   ]
 }

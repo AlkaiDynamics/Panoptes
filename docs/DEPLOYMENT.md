@@ -72,12 +72,27 @@ Then inspect the contribution ledger:
 
 ```sh
 python -m panoptes.cli ledger
+python -m panoptes.cli criteria-run-start 'Does this release satisfy its evidence contract?' --output /tmp/panoptes-qworld-run.json
 ```
+
+Advance the Qworld run with the exact collection requested by `next_task`:
+
+```sh
+python -m panoptes.cli criteria-run-advance /tmp/panoptes-qworld-run.json stage-result.json --output /tmp/panoptes-qworld-run.json
+```
+
+The state write is atomic and guarded by a fail-fast single-writer lock. Each
+stage result must carry the revision requested by `next_task`; each advance
+replays and validates prior outputs, stage order, lineage, artifacts, and the
+next-task handoff before accepting new data. A process killed while holding the
+lock can leave `<state>.lock`; inspect the state before removing that directory.
+The terminal status is `pending_review`, because structural validation cannot
+substitute for independent review of the proposed rubric's quality.
 
 Expected product-level interpretation:
 
 - planning pipeline: verified by tests and end-to-end example;
-- implemented/tested source contributions: currently 5;
+- implemented/tested source contributions: currently 6;
 - independently accepted operational integrations: currently 0;
 - 72-source and 300-source campaigns: planning artifacts, not completion claims.
 

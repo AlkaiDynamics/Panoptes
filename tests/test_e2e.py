@@ -24,6 +24,13 @@ class EndToEndPlannerTests(unittest.TestCase):
         self.assertIn("panoptes.e2e_agent build audit", dry.stdout)
         self.assertIn("panoptes.e2e_agent review", dry.stdout)
         self.assertNotIn("panoptes.e2e_agent build lightweight", dry.stdout)
+        qworld_dry = subprocess.run(
+            ["make", "-n", "-W", "../../panoptes/integrations/qworld.py"],
+            cwd=working, capture_output=True, text=True)
+        self.assertEqual(qworld_dry.returncode, 0, qworld_dry.stderr)
+        self.assertIn("panoptes.e2e_agent build audit", qworld_dry.stdout)
+        self.assertIn("panoptes.e2e_agent review", qworld_dry.stdout)
+        self.assertNotIn("panoptes.e2e_agent build lightweight", qworld_dry.stdout)
 
     def test_goal_through_review_and_tamper_gate(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -41,23 +48,37 @@ class EndToEndPlannerTests(unittest.TestCase):
             self.assertEqual(first.returncode, 0, first.stderr + first.stdout)
             report = (run / "build/report.md").read_text()
             self.assertIn("VERDICT: PASS", report)
-            self.assertIn("Implemented/tested/accepted source contributions: 5/5/0", report)
+            self.assertIn("Implemented/tested/accepted source contributions: 6/6/0", report)
             self.assertEqual(len(list((run / "build").glob("*.done"))), 4)
             import json
-            continuation = json.loads((run / "src/audit/artifact.json").read_text())["next_prompt"]
-            self.assertIn("Next task [inspect-source-005]", continuation)
-            self.assertIn("mims-harvard/Qworld", continuation)
+            audit_artifact = json.loads((run / "src/audit/artifact.json").read_text())
+            continuation = audit_artifact["next_prompt"]
+            self.assertIn("Next task [inspect-source-007]", continuation)
+            self.assertIn("iamadityakumar/forge", continuation)
             self.assertIn("Independent audit of existing unaccepted", continuation)
-            audit = json.loads((run / "src/audit/artifact.json").read_text())["audit_collection_prompt"]
+            audit = audit_artifact["audit_collection_prompt"]
             self.assertIn("qwadratic/create-mvp", audit)
             self.assertIn("61c270933291e2c726d09aaa8f66edc5ab369dce", audit)
             self.assertIn("e0271cc52b9a05feddf44e3d1b1d5412abe8be1a", audit)
             self.assertIn("9b0d8e8e71ea48eb6eae0ef56bcc77e3e5375d4a", audit)
             self.assertIn("cbe68eb23715a024b46af60fbaab00d28fcb49b5", audit)
+            self.assertIn("9f342a638d1624dd9a717936e835d3d8624f53f7", audit)
             self.assertIn("source revision", audit.lower())
             self.assertIn("return INSUFFICIENT EVIDENCE", audit)
             self.assertIn("python -m unittest discover -s tests -v", audit)
             self.assertIn("score audit-evidence.json", audit)
+            self.assertIn("question_evaluation_run", audit)
+            self.assertIn("criteria-run-advance", audit)
+            criteria_run = audit_artifact["question_evaluation_run"]
+            criteria_plan = criteria_run["plan"]
+            self.assertEqual(criteria_plan["method"], "Qworld Recursive Expansion Tree")
+            self.assertEqual(criteria_plan["question"],
+                             "Does Panoptes demonstrate at least 72 distinct supplied repositories "
+                             "as operational integrations with pinned source, tested behavior, an "
+                             "end-to-end outcome, and independent acceptance?")
+            self.assertEqual(len(criteria_plan["components"]), 17)
+            self.assertEqual(criteria_plan["components"][-1]["id"], "score-calibrate")
+            self.assertEqual(criteria_run["next_task"]["id"], "scenario-ground")
             from panoptes.corpus import integration_ledger
             evidence = run / "audit-evidence.json"
             evidence.write_text(json.dumps({"contributions": [

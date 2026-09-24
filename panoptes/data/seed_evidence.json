@@ -58,11 +58,11 @@
       "url": "https://github.com/mims-harvard/Qworld",
       "revision": "9f342a638d1624dd9a717936e835d3d8624f53f7",
       "status": "partial_code_inspection",
-      "evidence_paths": ["qworld/agents.py", "qworld/client.py", "pyproject.toml"],
+      "evidence_paths": ["qworld/agents.py", "qworld/client.py", "qworld/schemas.py", "skills/qworld-criteria-generation/SKILL.md", "pyproject.toml", "LICENSE"],
       "labels": {"confirmed": ["verification_evaluation"], "contradicted": [], "unverified": []},
-      "license": {"reported": "MIT", "evidence": "https://api.github.com/repos/mims-harvard/Qworld", "file_read": false},
-      "constraints": "Python >=3.9; model/provider SDKs and embeddings can add cost",
-      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+      "license": {"reported": "MIT", "evidence": "https://github.com/mims-harvard/Qworld/blob/9f342a638d1624dd9a717936e835d3d8624f53f7/LICENSE", "file_read": true},
+      "constraints": "Panoptes adopts the provider-neutral Recursive Expansion Tree planning method only; upstream provider clients, paid inference, embeddings, NumPy, scikit-learn and model SDKs are excluded from the lightweight runtime",
+      "selected": true, "implemented": true, "tested_in_engine": true, "accepted": false
     },
     {
       "url": "https://github.com/shivangdoshi07/brainstormer",

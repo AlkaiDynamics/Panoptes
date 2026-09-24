@@ -13,6 +13,7 @@ from .corpus import campaign, integration_ledger, load_corpus
 from .core import acquire, connect, initialize
 from .planner import install, validate
 from ._vendor.hermes_scaffold import wrap as wrap_audit
+from .integrations.qworld import start_criteria_run
 
 
 COMPONENTS = [
@@ -88,6 +89,14 @@ def expected(ident):
             "evidence JSON file. Then run: python -m panoptes.e2e_agent score "
             "audit-evidence.json. If you cannot independently gather this evidence, "
             "return INSUFFICIENT EVIDENCE and do not score or accept.\n"
+            "The sibling question_evaluation_run field is an initialized Qworld RET "
+            "execution, not a completed rubric. Save that field as qworld-run.json, "
+            "produce the ready stage's complete typed JSON collection, and advance it "
+            "with: python -m panoptes.cli criteria-run-advance qworld-run.json "
+            "stage-result.json --output qworld-run.json. Include the run_revision "
+            "requested by next_task and repeat until status=pending_review; that status "
+            "still requires independent qualitative review. A DAG or an 'ok' receipt "
+            "is not criteria evidence.\n"
             "Submitted claims (NOT independent evidence):\n"
             + "\n".join(
                 f"Source: {item['url']} ; source revision: {item['source_revision']} ; "
@@ -101,6 +110,11 @@ def expected(ident):
             '"source_excerpt":"quoted code","test_excerpt":"quoted test output",'
             '"collected_by":"independent reviewer ID"}]}.'
         )
+        evaluation_question = (
+            "Does Panoptes demonstrate at least 72 distinct supplied repositories "
+            "as operational integrations with pinned source, tested behavior, an "
+            "end-to-end outcome, and independent acceptance?"
+        )
         return {"kind": "planning_audit", "corpus_sources": len(inventory["sources"]),
                 "lightweight_distinct_candidates": len(compact),
                 "master_distinct_candidates": len(expanded),
@@ -109,6 +123,7 @@ def expected(ident):
                 "operational_integrations_accepted": ledger["accepted"],
                 "next_prompt": next_prompt,
                 "audit_collection_prompt": collection_prompt,
+                "question_evaluation_run": start_criteria_run(evaluation_question),
                 "verdict": "planning pipeline verified; product integration acceptance pending"}
     raise ValueError(f"unknown component: {ident}")
 
@@ -164,6 +179,7 @@ def main(argv=None):
         print(f"Implemented/tested/accepted source contributions: {ledger['implemented']}/{ledger['tested']}/{ledger['accepted']}.")
         print("Next source-specific prompt: src/audit/artifact.json → next_prompt")
         print("Audit collection prompt: src/audit/artifact.json → audit_collection_prompt")
+        print("Question-specific Qworld run: src/audit/artifact.json → question_evaluation_run")
         print("Product MVP remains open.")
         print("VERDICT: PASS")
     elif role == "score" and len(rest) == 1:

@@ -77,13 +77,14 @@ Verified tasks require evidence and become immutable. A plan cannot be silently 
 
 ### 5. Evidence and audit adapters
 
-Panoptes currently carries five implemented/tested source contributions in its evidence ledger:
+Panoptes currently carries six implemented/tested source contributions in its evidence ledger:
 
 1. `qwadratic/create-mvp` — pinned planning framework used by the end-to-end Make pipeline.
 2. `hermes-labs-ai/hermes-blind` — evidence-gated audit-prompt scaffold; it cannot set acceptance flags.
 3. `ncz-os/mnemos` — dependency-free Python 3.11 JSON/HTTP adapter to a separately operated Mnemos service.
 4. `AmanPriyanshu/GeneticPromptLab` — deterministic provider-neutral genetic prompt-round planner without paid inference.
 5. `shivangdoshi07/brainstormer` — deterministic projection of validated Panoptes component DAGs into Excalidraw element skeletons; the upstream web server and provider stack are excluded.
+6. `mims-harvard/Qworld` — question-specific Recursive Expansion Tree executed as 17 typed stages with bounded scenario, perspective, criterion, and lineage handoffs. Stage results are revision-bound; generic receipts, inconsistent state, destructive rewrites, and polarity reversal fail closed. Structurally finished criteria stop at `pending_review`, not acceptance. Upstream provider clients, embeddings, and model SDKs are excluded.
 
 Independent acceptance remains a distinct gate. The current accepted integration count is zero.
 
