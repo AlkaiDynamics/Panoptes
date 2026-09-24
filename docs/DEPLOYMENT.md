@@ -77,7 +77,7 @@ python -m panoptes.cli ledger
 Expected product-level interpretation:
 
 - planning pipeline: verified by tests and end-to-end example;
-- implemented/tested source contributions: currently 4;
+- implemented/tested source contributions: currently 5;
 - independently accepted operational integrations: currently 0;
 - 72-source and 300-source campaigns: planning artifacts, not completion claims.
 

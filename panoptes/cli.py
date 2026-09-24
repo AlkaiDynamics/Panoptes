@@ -3,11 +3,13 @@
 import argparse
 import json
 import os
+from pathlib import Path
 from .core import acquire, advance, choose_next, connect, initialize, snapshot
 from .planner import complete, install, next_task
 from .corpus import campaign, integration_ledger
 from .integrations.mnemos import MnemosClient
 from .integrations.genetic_prompt_lab import plan_evolution_round
+from .integrations.brainstormer import plan_to_excalidraw
 
 
 def main(argv=None):
@@ -41,6 +43,9 @@ def main(argv=None):
     evolve.add_argument("file", help="JSON file containing a population list")
     evolve.add_argument("--mutation-rate", type=float, default=0.1)
     evolve.add_argument("--seed", type=int, default=0)
+    diagram = commands.add_parser("plan-diagram", help="Project a component DAG into Excalidraw skeletons")
+    diagram.add_argument("file", help="JSON file containing components or a campaign")
+    diagram.add_argument("--output", help="Save the diagram JSON to this path")
     plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
     plan.add_argument("file")
     plan.add_argument("checkpoint", type=int)
@@ -98,6 +103,23 @@ def main(argv=None):
         print(json.dumps(plan_evolution_round(population,
                                               mutation_rate=args.mutation_rate,
                                               seed=args.seed), indent=2))
+        return
+    if args.command == "plan-diagram":
+        if args.output and Path(args.file).resolve() == Path(args.output).resolve():
+            raise ValueError("plan input and diagram output must use different paths")
+        with open(args.file, encoding="utf-8") as source:
+            payload = json.load(source)
+        components = payload.get("components") if isinstance(payload, dict) else payload
+        result = plan_to_excalidraw(components)
+        if args.output:
+            with open(args.output, "w", encoding="utf-8") as output:
+                json.dump(result, output, indent=2)
+                output.write("\n")
+            result = {"output": args.output,
+                      "component_count": result["component_count"],
+                      "dependency_count": result["dependency_count"],
+                      "format": result["format"]}
+        print(json.dumps(result, indent=2))
         return
     with connect(args.db) as db:
         if args.command == "init":

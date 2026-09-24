@@ -1,0 +1,12 @@
+Brainstormer attribution
+========================
+
+Source: https://github.com/shivangdoshi07/brainstormer
+Pinned revision: cbe68eb23715a024b46af60fbaab00d28fcb49b5
+Inspected source paths: backend/diagramBuilder.js, backend/index.js
+
+Panoptes adapts Brainstormer's deterministic diagram-element fallback and
+hierarchical visual planning semantics. No upstream JavaScript source is
+copied. The upstream project is licensed under the Apache License 2.0. Panoptes
+distributes the same Apache License 2.0 text in the project LICENSE and wheel
+license metadata.

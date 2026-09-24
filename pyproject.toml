@@ -15,4 +15,4 @@ panoptes = "panoptes.cli:main"
 include = ["panoptes*"]
 
 [tool.setuptools.package-data]
-panoptes = ["data/*.csv", "data/*.json", "_vendor/HERMES_LICENSE", "_vendor/GENETIC_PROMPT_LAB_LICENSE"]
+panoptes = ["data/*.csv", "data/*.json", "_vendor/HERMES_LICENSE", "_vendor/GENETIC_PROMPT_LAB_LICENSE", "_vendor/BRAINSTORMER_NOTICE"]

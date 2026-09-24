@@ -41,18 +41,19 @@ class EndToEndPlannerTests(unittest.TestCase):
             self.assertEqual(first.returncode, 0, first.stderr + first.stdout)
             report = (run / "build/report.md").read_text()
             self.assertIn("VERDICT: PASS", report)
-            self.assertIn("Implemented/tested/accepted source contributions: 4/4/0", report)
+            self.assertIn("Implemented/tested/accepted source contributions: 5/5/0", report)
             self.assertEqual(len(list((run / "build").glob("*.done"))), 4)
             import json
             continuation = json.loads((run / "src/audit/artifact.json").read_text())["next_prompt"]
-            self.assertIn("Next task [inspect-source-004]", continuation)
-            self.assertIn("shivangdoshi07/brainstormer", continuation)
+            self.assertIn("Next task [inspect-source-005]", continuation)
+            self.assertIn("mims-harvard/Qworld", continuation)
             self.assertIn("Independent audit of existing unaccepted", continuation)
             audit = json.loads((run / "src/audit/artifact.json").read_text())["audit_collection_prompt"]
             self.assertIn("qwadratic/create-mvp", audit)
             self.assertIn("61c270933291e2c726d09aaa8f66edc5ab369dce", audit)
             self.assertIn("e0271cc52b9a05feddf44e3d1b1d5412abe8be1a", audit)
             self.assertIn("9b0d8e8e71ea48eb6eae0ef56bcc77e3e5375d4a", audit)
+            self.assertIn("cbe68eb23715a024b46af60fbaab00d28fcb49b5", audit)
             self.assertIn("source revision", audit.lower())
             self.assertIn("return INSUFFICIENT EVIDENCE", audit)
             self.assertIn("python -m unittest discover -s tests -v", audit)

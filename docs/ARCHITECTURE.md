@@ -77,12 +77,13 @@ Verified tasks require evidence and become immutable. A plan cannot be silently 
 
 ### 5. Evidence and audit adapters
 
-Panoptes currently carries four implemented/tested source contributions in its evidence ledger:
+Panoptes currently carries five implemented/tested source contributions in its evidence ledger:
 
 1. `qwadratic/create-mvp` — pinned planning framework used by the end-to-end Make pipeline.
 2. `hermes-labs-ai/hermes-blind` — evidence-gated audit-prompt scaffold; it cannot set acceptance flags.
 3. `ncz-os/mnemos` — dependency-free Python 3.11 JSON/HTTP adapter to a separately operated Mnemos service.
 4. `AmanPriyanshu/GeneticPromptLab` — deterministic provider-neutral genetic prompt-round planner without paid inference.
+5. `shivangdoshi07/brainstormer` — deterministic projection of validated Panoptes component DAGs into Excalidraw element skeletons; the upstream web server and provider stack are excluded.
 
 Independent acceptance remains a distinct gate. The current accepted integration count is zero.
 
@@ -116,6 +117,8 @@ Only operational source-specific work may contribute toward the 72/300 integrati
 The Mnemos adapter is optional and points to a separately operated service. API keys are read from an environment variable rather than a CLI argument. The client constrains the configured base URL to reduce credential leakage through redirects or malformed origins.
 
 No external model-provider credential is required for the deterministic planning pipeline or genetic round planner.
+
+The Brainstormer adapter is also dependency-free. It consumes an already-validated component DAG and emits deterministic visualization data; it does not expose the upstream server's unrestricted CORS or in-memory session surface.
 
 ## What is not wired yet
 

@@ -10,7 +10,7 @@
       "implementation_paths": ["vendor/create-mvp/build.mk", "panoptes/e2e_agent.py", "examples/e2e/Makefile"],
       "behavior_test_paths": ["tests/test_e2e.py", "tests/test_corpus.py"],
       "observed_outcome": "Actual GNU Make pipeline completed goal -> plan -> parallel builds -> checks -> final review, generating independently checked 72/300 candidate planning artifacts; tamper test rejected altered candidate count.",
-      "local_patch": "Single-line rewrite of jq effort expression in build.mk required for jq 1.7 here; document in docs/PLANNER.md.",
+      "local_patch": "Single-line rewrite of the jq effort expression in build.mk required for jq 1.7 here; the pinned engine and patch boundary are documented in docs/ARCHITECTURE.md.",
       "selected": true,
       "implemented": true,
       "tested_in_engine": true,
@@ -64,6 +64,22 @@
       "tested_in_engine": true,
       "accepted": false,
       "acceptance_reason": "Deterministic round planning is tested, but actual transformed prompt quality and independent source-specific review remain outstanding."
+    },
+    {
+      "repository": "shivangdoshi07/brainstormer",
+      "url": "https://github.com/shivangdoshi07/brainstormer",
+      "source_revision": "cbe68eb23715a024b46af60fbaab00d28fcb49b5",
+      "source_paths": ["backend/diagramBuilder.js", "backend/index.js", "backend/package.json", "LICENSE"],
+      "license": "Apache-2.0",
+      "implementation_paths": ["panoptes/integrations/brainstormer.py", "panoptes/cli.py", "panoptes/_vendor/BRAINSTORMER_NOTICE"],
+      "behavior_test_paths": ["tests/test_brainstormer.py"],
+      "observed_outcome": "Panoptes projects a validated component DAG into deterministic Excalidraw element skeletons with bounded hierarchical positions, visible repository identities, semantic task shapes and exact dependency arrows. Behavior tests render both the real 72-source campaign (145 nodes/144 edges) and master 300-source campaign (601 nodes/600 edges), and the CLI writes the same projection without model credentials or web services.",
+      "local_patch": "Algorithmic adaptation of Brainstormer's pinned deterministic diagram fallback and hierarchical layout semantics; no upstream JavaScript is copied. The React, Excalidraw UI, Express, Socket.IO, unrestricted CORS, in-memory sessions and Ollama/OpenAI provider paths are deliberately excluded.",
+      "selected": true,
+      "implemented": true,
+      "tested_in_engine": true,
+      "accepted": false,
+      "acceptance_reason": "Deterministic full-campaign projection is tested, but import into a live Excalidraw surface and independent source-specific review remain outstanding."
     }
   ]
 }

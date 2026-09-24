@@ -71,8 +71,8 @@
       "evidence_paths": ["backend/index.js", "backend/diagramBuilder.js", "backend/package.json", "frontend/package.json", "LICENSE"],
       "labels": {"confirmed": ["interface_visualization", "data_connectors_tools", "planning_decision"], "contradicted": ["other_uncertain"], "unverified": []},
       "license": {"reported": "Apache-2.0", "evidence": "https://github.com/shivangdoshi07/brainstormer/blob/cbe68eb23715a024b46af60fbaab00d28fcb49b5/LICENSE", "file_read": true},
-      "constraints": "React/Excalidraw frontend, Express/Socket.IO backend, Ollama or OpenAI-compatible provider; sessions are in-memory and CORS is unrestricted in inspected server code",
-      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+      "constraints": "Panoptes adopts only the dependency-free deterministic diagram projection; React/Excalidraw UI, Express/Socket.IO, Ollama/OpenAI providers, in-memory sessions and unrestricted CORS remain excluded",
+      "selected": true, "implemented": true, "tested_in_engine": true, "accepted": false
     },
     {
       "url": "https://github.com/alrece/loop-engineering",

@@ -11,11 +11,12 @@ class CorpusCampaignTests(unittest.TestCase):
     def test_source_evidence_separates_working_framework_from_acceptance(self):
         ledger = integration_ledger()
         self.assertTrue(ledger["local_evidence_paths_checked"])
-        self.assertEqual((ledger["selected"], ledger["implemented"], ledger["tested"], ledger["accepted"]), (4, 4, 4, 0))
+        self.assertEqual((ledger["selected"], ledger["implemented"], ledger["tested"], ledger["accepted"]), (5, 5, 5, 0))
         self.assertEqual(ledger["contributions"][0]["repository"], "qwadratic/create-mvp")
         self.assertEqual(ledger["contributions"][1]["repository"], "hermes-labs-ai/hermes-blind")
         self.assertEqual(ledger["contributions"][2]["repository"], "ncz-os/mnemos")
         self.assertEqual(ledger["contributions"][3]["repository"], "AmanPriyanshu/GeneticPromptLab")
+        self.assertEqual(ledger["contributions"][4]["repository"], "shivangdoshi07/brainstormer")
 
     def test_bundled_corpus_and_distinct_72_and_300_campaigns(self):
         sources = load_corpus()
