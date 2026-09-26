@@ -164,7 +164,8 @@ class ControlInvocationTests(unittest.TestCase):
         )
         self.assertNotIn("architecture_pr", artifact["target"]["source"])
         self.assertIn("ARTTOO EXECUTION PROMPT", artifact["prompt"])
-        self.assertNotIn("PR #11", artifact["prompt"])
+        self.assertIn("- architecture reference: none recorded", artifact["prompt"])
+        self.assertNotIn("architecture reference: PR #11", artifact["prompt"])
 
     def test_panoptes_can_target_itself_on_a_sandbox_ref(self):
         panoptes = target_state(
