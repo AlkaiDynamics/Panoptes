@@ -75,6 +75,16 @@
       "selected": true, "implemented": true, "tested_in_engine": true, "accepted": false
     },
     {
+      "url": "https://github.com/developzir/gepa-mcp",
+      "revision": "398e514bfa456794225219fc9bd433d4f59983e2",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["src/gepa_mcp/gepa_core.py", "pyproject.toml", "LICENSE"],
+      "labels": {"confirmed": ["prompt_optimization"], "contradicted": ["execution_automation", "model_training_adaptation", "data_connectors_tools"], "unverified": []},
+      "license": {"reported": "MIT", "evidence": "https://github.com/developzir/gepa-mcp/blob/398e514bfa456794225219fc9bd433d4f59983e2/LICENSE", "file_read": true},
+      "constraints": "Panoptes adapts only the provider-neutral reflective optimization loop and supplies persistent evaluation slices, Pareto frontier state, bounded retries, plateau switching, and budget/convergence gates. Gemini, MCP server, model credentials, and provider SDKs are excluded; reflective model calls, when needed, use Interception.",
+      "selected": true, "implemented": true, "tested_in_engine": true, "accepted": false
+    },
+    {
       "url": "https://github.com/alrece/loop-engineering",
       "revision": "cc361d30aa1835b0ddd5d3974459ac95b190e4b0",
       "status": "partial_code_inspection",

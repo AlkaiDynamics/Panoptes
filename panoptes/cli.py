@@ -13,6 +13,7 @@ from .integrations.mnemos import MnemosClient
 from .integrations.genetic_prompt_lab import plan_evolution_round
 from .integrations.brainstormer import plan_to_excalidraw
 from .integrations.qworld import advance_criteria_run, build_criteria_plan, start_criteria_run
+from .control import run_invocation
 
 
 def _write_json(path, payload):
@@ -47,7 +48,7 @@ def _state_write_lock(path):
     try:
         lock.mkdir()
     except FileExistsError as error:
-        raise ValueError(f"Qworld state is already locked: {lock}") from error
+        raise ValueError(f"state is already locked: {lock}") from error
     try:
         yield
     finally:
@@ -65,7 +66,7 @@ def main(argv=None):
     commands.add_parser("next")
     commands.add_parser("ledger", help="Report implemented, tested, and accepted source counts")
     generate = commands.add_parser("campaign", help="Generate an evidence-gated candidate plan from the bundled corpus")
-    generate.add_argument("--target", type=int, choices=[72, 300], default=72)
+    generate.add_argument("--target", type=int, choices=[72, 360], default=72)
     generate.add_argument("--output", help="Save a full plan JSON to this path")
     memory_search = commands.add_parser("memory-search", help="Search a configured Mnemos service")
     memory_search.add_argument("query")
@@ -98,6 +99,12 @@ def main(argv=None):
     criteria_advance.add_argument("state", help="Current Qworld run-state JSON")
     criteria_advance.add_argument("result", help="JSON result for the ready stage")
     criteria_advance.add_argument("--output", help="Save advanced state; may equal the state path")
+    control = commands.add_parser(
+        "control-run", help="Recover one scheduled control invocation and emit one target prompt")
+    control.add_argument("--target", required=True, help="Validated target-state JSON")
+    control.add_argument("--state", required=True, help="Persistent Panoptes control-state JSON")
+    control.add_argument("--output", required=True, help="Target-specific next-prompt artifact")
+    control.add_argument("--result", help="Optional executor result from the preceding prompt")
     plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
     plan.add_argument("file")
     plan.add_argument("checkpoint", type=int)
@@ -207,6 +214,38 @@ def main(argv=None):
                 state = json.load(source)
             result = advance_criteria_run(state, stage_result)
         print(json.dumps(result, indent=2))
+        return
+    if args.command == "control-run":
+        paths = [Path(args.target).resolve(), Path(args.state).resolve(),
+                 Path(args.output).resolve()]
+        if args.result:
+            paths.append(Path(args.result).resolve())
+        if len(paths) != len(set(paths)):
+            raise ValueError("target, state, result, and output paths must be distinct")
+        with open(args.target, encoding="utf-8") as source:
+            target_state = json.load(source)
+        if args.result:
+            with open(args.result, encoding="utf-8") as source:
+                execution_result = json.load(source)
+        else:
+            execution_result = None
+        state_path = Path(args.state).resolve()
+        with _state_write_lock(state_path):
+            if state_path.exists():
+                with state_path.open(encoding="utf-8") as source:
+                    control_state = json.load(source)
+            else:
+                control_state = None
+            artifact, next_state, duplicate = run_invocation(
+                control_state, target_state, execution_result)
+            if next_state != control_state:
+                _write_json(state_path, next_state)
+            _write_json(args.output, artifact)
+        print(json.dumps({"prompt_id": artifact["prompt_id"],
+                          "duplicate": duplicate,
+                          "target": artifact["target"]["repository"],
+                          "optimization_status": artifact["optimization"]["status"],
+                          "output": args.output}, indent=2))
         return
     with connect(args.db) as db:
         if args.command == "init":

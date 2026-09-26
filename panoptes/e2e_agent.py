@@ -19,7 +19,7 @@ from .integrations.qworld import start_criteria_run
 COMPONENTS = [
     {"id": "inventory", "desc": "Validate all distinct supplied repositories and preserve source status", "deps": [], "check": "434 unique source URLs with status and immutable pins where inspected"},
     {"id": "lightweight", "desc": "Generate the 72 distinct repository inspection and integration campaign", "deps": ["inventory"], "check": "72 source-specific candidate plans, with separate inspection and integration gates"},
-    {"id": "master", "desc": "Generate the 300 distinct repository master campaign", "deps": ["inventory"], "check": "300 unique candidate plans with operational evidence gates"},
+    {"id": "master", "desc": "Generate the 360 distinct repository master campaign", "deps": ["inventory"], "check": "360 unique candidate plans with operational evidence gates"},
     {"id": "audit", "desc": "Independently check the generated campaigns against the corpus and count ledger", "deps": ["lightweight", "master"], "check": "Both plans valid, lightweight candidates included in master, zero phantom accepted contributions"},
 ]
 
@@ -41,7 +41,7 @@ def expected(ident):
              "inspection_status": r["inspection_status"],
              "pinned_revision": r["pinned_revision"]} for r in load_corpus()]}
     if ident in {"lightweight", "master"}:
-        return campaign(72 if ident == "lightweight" else 300)
+        return campaign(72 if ident == "lightweight" else 360)
     if ident == "audit":
         paths = _location()
         inventory = _json(paths["inventory"])
@@ -55,7 +55,7 @@ def expected(ident):
         # Exercise the same durable planner that an hourly continuation uses,
         # and emit its concrete first prompt as a checked pipeline artifact.
         with connect(":memory:") as db:
-            initialize(db, "Deliver 72 distinct operational source integrations, then 300 master integrations",
+            initialize(db, "Deliver 72 distinct operational source integrations, then 360 master integrations",
                        ["Count only pinned, tested, observable supplied-repository contributions",
                         "Keep continuation enabled through blockers"])
             acquire(db, "pipeline")
@@ -161,8 +161,8 @@ def main(argv=None):
     role, *rest = args
     if role == "plan" and len(rest) == 1:
         goal = Path(rest[0]).read_text(encoding="utf-8")
-        if "72" not in goal or "300" not in goal:
-            raise ValueError("this adapter requires the confirmed 72/300 product goal")
+        if "72" not in goal or "360" not in goal:
+            raise ValueError("this adapter requires the confirmed 72/360 product goal")
         validate([{**item} for item in COMPONENTS])
         print(json.dumps({"components": [{k: v for k, v in item.items() if k != "check"}
                                          for item in COMPONENTS]}))

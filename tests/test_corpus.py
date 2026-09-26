@@ -11,15 +11,16 @@ class CorpusCampaignTests(unittest.TestCase):
     def test_source_evidence_separates_working_framework_from_acceptance(self):
         ledger = integration_ledger()
         self.assertTrue(ledger["local_evidence_paths_checked"])
-        self.assertEqual((ledger["selected"], ledger["implemented"], ledger["tested"], ledger["accepted"]), (6, 6, 6, 0))
+        self.assertEqual((ledger["selected"], ledger["implemented"], ledger["tested"], ledger["accepted"]), (7, 7, 7, 0))
         self.assertEqual(ledger["contributions"][0]["repository"], "qwadratic/create-mvp")
         self.assertEqual(ledger["contributions"][1]["repository"], "hermes-labs-ai/hermes-blind")
         self.assertEqual(ledger["contributions"][2]["repository"], "ncz-os/mnemos")
         self.assertEqual(ledger["contributions"][3]["repository"], "AmanPriyanshu/GeneticPromptLab")
         self.assertEqual(ledger["contributions"][4]["repository"], "shivangdoshi07/brainstormer")
         self.assertEqual(ledger["contributions"][5]["repository"], "mims-harvard/Qworld")
+        self.assertEqual(ledger["contributions"][6]["repository"], "developzir/gepa-mcp")
 
-    def test_bundled_corpus_and_distinct_72_and_300_campaigns(self):
+    def test_bundled_corpus_and_distinct_72_and_360_campaigns(self):
         sources = load_corpus()
         self.assertEqual(len(sources), 434)
         hermes = next(s for s in sources if s["repository"] == "hermes-labs-ai/hermes-blind")
@@ -32,15 +33,21 @@ class CorpusCampaignTests(unittest.TestCase):
         self.assertEqual(forge["license"], "UNKNOWN")
         self.assertEqual(forge["integration_disposition"],
                          "deferred_pending_license_and_interception_boundary_review")
+        gepa = next(s for s in sources if s["repository"] == "developzir/gepa-mcp")
+        self.assertEqual(gepa["pinned_revision"], "398e514bfa456794225219fc9bd433d4f59983e2")
+        self.assertEqual(gepa["selection_labels"], ["prompt_optimization"])
         self.assertEqual(len({source["url"] for source in sources}), 434)
         self.assertEqual(next(s for s in sources if s["repository"] == "qwadratic/create-mvp")["inspection_status"], "partial_code_inspection")
-        for target in (72, 300):
+        for target in (72, 360):
             draft = campaign(target, sources)
             self.assertEqual(len(draft["candidates"]), target)
             self.assertEqual(len({s["url"] for s in draft["candidates"]}), target)
             self.assertNotIn("wangshengyi-del/PNSA", {s["repository"] for s in draft["candidates"]})
             self.assertNotIn("iamadityakumar/forge", {s["repository"] for s in draft["candidates"]})
-            self.assertEqual(draft["candidates"][6]["repository"], "robzilla1738/supergoal")
+            self.assertIn("robzilla1738/supergoal",
+                          {source["repository"] for source in draft["candidates"]})
+            self.assertIn("developzir/gepa-mcp",
+                          {source["repository"] for source in draft["candidates"]})
             self.assertFalse(any(s["integration_disposition"].startswith("deferred")
                                  for s in draft["candidates"]))
             genetic = next(s for s in draft["candidates"]
@@ -57,7 +64,7 @@ class CorpusCampaignTests(unittest.TestCase):
         for row in sources:
             if row["repository"] in {"qwadratic/create-mvp", "robzilla1738/supergoal"}:
                 row["integration_disposition"] = "deferred_test_boundary_review"
-        for target in (72, 300):
+        for target in (72, 360):
             draft = campaign(target, sources)
             self.assertEqual(len(draft["candidates"]), target)
             self.assertFalse({"qwadratic/create-mvp", "robzilla1738/supergoal",

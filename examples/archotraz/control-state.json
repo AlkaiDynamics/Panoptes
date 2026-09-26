@@ -1,0 +1,160 @@
+{
+  "schema_version": "panoptes.control-state/v1",
+  "target_repository": "https://github.com/AlkaiDynamics/Archotraz",
+  "run_sequence": 1,
+  "completed_prompt_ids": [],
+  "applied_results": [],
+  "optimization_history": [],
+  "outstanding": {
+    "prompt_id": "889fbd94ff6b6a52cd6d43310f5ee776d2df4be2190f45da0b970b26c2c218b3",
+    "target_fingerprint": "9fd3fa8989e029fab4185348e404053247868e946464f1cfa5a19ffa89097d58",
+    "artifact": {
+      "schema_version": "panoptes.next-prompt/v1",
+      "prompt_id": "889fbd94ff6b6a52cd6d43310f5ee776d2df4be2190f45da0b970b26c2c218b3",
+      "target": {
+        "project": "Archotraz",
+        "repository": "https://github.com/AlkaiDynamics/Archotraz",
+        "execution_owner": "separate_archotraz_work_task",
+        "source": {
+          "default_branch": "main",
+          "default_sha": "a48906982f003ee2ef8aca02b129299f8301fa3b",
+          "architecture_pr": {
+            "number": 11,
+            "head_sha": "ae06c4f16acc2f821dfb019d184f021465cd7b5c",
+            "status": "draft"
+          },
+          "active_work": [
+            {
+              "kind": "pull_request",
+              "number": 10,
+              "head_sha": "51cd3ed5bc9312bd52d87b5fb17afd48077ee02d",
+              "status": "draft"
+            }
+          ]
+        }
+      },
+      "optimization": {
+        "algorithm": "reflective_candidate_evolution_with_pareto_frontier",
+        "source_revision": "398e514bfa456794225219fc9bd433d4f59983e2",
+        "reference_revision": "d771eb21b5dd3228bc3f567293d2ccfc423fc900",
+        "iteration": 1,
+        "metric_calls": 12,
+        "metric_budget": 12,
+        "evaluation_slices": [
+          "authority_alignment",
+          "target_state_grounding",
+          "bounded_execution",
+          "evidence_and_continuation"
+        ],
+        "frontier": [
+          "archotraz-0001-control-ready"
+        ],
+        "selected_candidate": "archotraz-0001-control-ready",
+        "status": "converged",
+        "stop_reason": "all_evaluation_slices_satisfied",
+        "engine": "structured-template"
+      },
+      "prompt": "ARCHOTRAZ EXECUTION PROMPT\n\nAuthority and ownership\n- You are the separate Archotraz executor. Mutate only AlkaiDynamics/Archotraz.\n- Panoptes is the control/generation side. Do not mutate Panoptes.\n- Recheck live GitHub state and later user corrections before writing.\n- A blocker redirects work to the highest-value planning/refinement action; it does not cancel continuation.\n\nRecovered target checkpoint\n- default branch: main at a48906982f003ee2ef8aca02b129299f8301fa3b\n- architecture draft: PR #11 at ae06c4f16acc2f821dfb019d184f021465cd7b5c (draft)\nActive work recorded by the controller:\n- pull_request #10 at 51cd3ed5bc9312bd52d87b5fb17afd48077ee02d (draft)\n\nNext bounded unit: shared-transformation-receipt\nImplement the smallest shared transformation receipt contract around one existing Archotraz operation, aligned with Phase 2 design PR #11 and without changing the wrapped operation's algorithm.\n\nRequired execution\n1. Reconcile the live implementation branch with PR #11 before mutation; preserve newer verified work and record any supersession.\n2. Implement only this bounded unit in isolated draft work. Wrap one existing operation; do not rewrite its algorithm.\n3. Preserve SQLite as canonical state, explicit UNKNOWN semantics, Dry Mode, evidence/provenance separation, and existing Warden/Bopo authority boundaries.\n4. Add meaningful behavior tests, run the relevant full suite, and inspect the exact diff.\n5. Record the resulting commit, test evidence, target checkpoint, blockers, and the next bounded unit using the result contract below.\n\nAcceptance criteria\n- Wrap exactly one existing operation without changing its algorithm or authority boundary.\n- Record transformation identity and semantic version, exact inputs, status, outputs or artifacts, evidence created, verification result, wall time, CPU time where measurable, and peak RAM where measurable.\n- Persist success and failure receipts through Archotraz's canonical SQLite evidence/state boundary with no partial success artifacts after a failed transformation.\n- Generate one operator-usable Capability Card or equivalent projection from the shared operation definition where practical.\n- Add behavior tests for success, failure, provenance, deterministic identity, and restart-safe receipt inspection; record the resulting commit and exact test evidence.\n\nExclusions\n- Do not implement the later lineage, Mechanism/Target/Case, bridge, or virtual-universe slices.\n- Do not replace Archotraz's SQLite authority, Warden/Bopo boundary, Dry Mode, or explicit UNKNOWN semantics.\n- Do not merge design PR #11 or deploy/publish from this task.\n- Do not make Panoptes a second Archotraz writer.\n\n\nContinuation contract\n- Use the prompt_id supplied outside this text as the idempotency key.\n- Never apply this prompt twice to the same target checkpoint.\n- Return panoptes.execution-result/v1 with prompt_id, status, target_checkpoint.commit, and concrete evidence.\n- For blocked or failed work, preserve the blocker and complete useful non-mutating refinement so the next heartbeat can continue.\n",
+      "acceptance_criteria": [
+        "Wrap exactly one existing operation without changing its algorithm or authority boundary.",
+        "Record transformation identity and semantic version, exact inputs, status, outputs or artifacts, evidence created, verification result, wall time, CPU time where measurable, and peak RAM where measurable.",
+        "Persist success and failure receipts through Archotraz's canonical SQLite evidence/state boundary with no partial success artifacts after a failed transformation.",
+        "Generate one operator-usable Capability Card or equivalent projection from the shared operation definition where practical.",
+        "Add behavior tests for success, failure, provenance, deterministic identity, and restart-safe receipt inspection; record the resulting commit and exact test evidence."
+      ],
+      "exclusions": [
+        "Do not implement the later lineage, Mechanism/Target/Case, bridge, or virtual-universe slices.",
+        "Do not replace Archotraz's SQLite authority, Warden/Bopo boundary, Dry Mode, or explicit UNKNOWN semantics.",
+        "Do not merge design PR #11 or deploy/publish from this task.",
+        "Do not make Panoptes a second Archotraz writer."
+      ],
+      "previous_result": null,
+      "result_contract": {
+        "schema_version": "panoptes.execution-result/v1",
+        "prompt_id": "889fbd94ff6b6a52cd6d43310f5ee776d2df4be2190f45da0b970b26c2c218b3",
+        "required": [
+          "target_repository",
+          "status",
+          "target_checkpoint.commit",
+          "evidence"
+        ],
+        "allowed_status": [
+          "verified",
+          "blocked",
+          "failed",
+          "deferred"
+        ]
+      }
+    }
+  },
+  "optimization": {
+    "schema_version": "panoptes.gepa-state/v1",
+    "algorithm": "reflective_candidate_evolution_with_pareto_frontier",
+    "source_revision": "398e514bfa456794225219fc9bd433d4f59983e2",
+    "reference_revision": "d771eb21b5dd3228bc3f567293d2ccfc423fc900",
+    "evaluation_slices": [
+      "authority_alignment",
+      "target_state_grounding",
+      "bounded_execution",
+      "evidence_and_continuation"
+    ],
+    "engines": [
+      "structured-template",
+      "interception-reflection"
+    ],
+    "current_engine": "structured-template",
+    "engine_index": 0,
+    "engine_switches": 0,
+    "metric_budget": 12,
+    "metric_calls": 12,
+    "iteration": 1,
+    "plateau_patience": 2,
+    "plateau_iterations": 0,
+    "retry_limit": 2,
+    "retry_counts": {},
+    "retry_events": [],
+    "min_improvement": 1e-09,
+    "best_score": 1.0,
+    "candidates": [
+      {
+        "id": "archotraz-0001-minimal",
+        "prompt": "ARCHOTRAZ EXECUTION PROMPT\n\nAuthority and ownership\n- You are the separate Archotraz executor. Mutate only AlkaiDynamics/Archotraz.\n- Panoptes is the control/generation side. Do not mutate Panoptes.\n- Recheck live GitHub state and later user corrections before writing.\n- A blocker redirects work to the highest-value planning/refinement action; it does not cancel continuation.\n\nRecovered target checkpoint\n- default branch: main at a48906982f003ee2ef8aca02b129299f8301fa3b\n- architecture draft: PR #11 at ae06c4f16acc2f821dfb019d184f021465cd7b5c (draft)\nActive work recorded by the controller:\n- pull_request #10 at 51cd3ed5bc9312bd52d87b5fb17afd48077ee02d (draft)\n\nNext bounded unit: shared-transformation-receipt\nImplement the smallest shared transformation receipt contract around one existing Archotraz operation, aligned with Phase 2 design PR #11 and without changing the wrapped operation's algorithm.\n\nRequired execution\n1. Reconcile the live implementation branch with PR #11 before mutation; preserve newer verified work and record any supersession.\n2. Implement only this bounded unit in isolated draft work. Wrap one existing operation; do not rewrite its algorithm.\n3. Preserve SQLite as canonical state, explicit UNKNOWN semantics, Dry Mode, evidence/provenance separation, and existing Warden/Bopo authority boundaries.\n4. Add meaningful behavior tests, run the relevant full suite, and inspect the exact diff.\n5. Record the resulting commit, test evidence, target checkpoint, blockers, and the next bounded unit using the result contract below.\n\nAcceptance criteria\n- Wrap exactly one existing operation without changing its algorithm or authority boundary.\n- Record transformation identity and semantic version, exact inputs, status, outputs or artifacts, evidence created, verification result, wall time, CPU time where measurable, and peak RAM where measurable.\n- Persist success and failure receipts through Archotraz's canonical SQLite evidence/state boundary with no partial success artifacts after a failed transformation.\n- Generate one operator-usable Capability Card or equivalent projection from the shared operation definition where practical.\n- Add behavior tests for success, failure, provenance, deterministic identity, and restart-safe receipt inspection; record the resulting commit and exact test evidence.\n\nExclusions\n- Do not implement the later lineage, Mechanism/Target/Case, bridge, or virtual-universe slices.\n- Do not replace Archotraz's SQLite authority, Warden/Bopo boundary, Dry Mode, or explicit UNKNOWN semantics.\n- Do not merge design PR #11 or deploy/publish from this task.\n- Do not make Panoptes a second Archotraz writer.\n",
+        "scores": {
+          "authority_alignment": 1.0,
+          "target_state_grounding": 0.5,
+          "bounded_execution": 0.5,
+          "evidence_and_continuation": 0.5
+        },
+        "iteration": 1
+      },
+      {
+        "id": "archotraz-0001-evidence",
+        "prompt": "ARCHOTRAZ EXECUTION PROMPT\n\nAuthority and ownership\n- You are the separate Archotraz executor. Mutate only AlkaiDynamics/Archotraz.\n- Panoptes is the control/generation side. Do not mutate Panoptes.\n- Recheck live GitHub state and later user corrections before writing.\n- A blocker redirects work to the highest-value planning/refinement action; it does not cancel continuation.\n\nRecovered target checkpoint\n- default branch: main at a48906982f003ee2ef8aca02b129299f8301fa3b\n- architecture draft: PR #11 at ae06c4f16acc2f821dfb019d184f021465cd7b5c (draft)\nActive work recorded by the controller:\n- pull_request #10 at 51cd3ed5bc9312bd52d87b5fb17afd48077ee02d (draft)\n\nNext bounded unit: shared-transformation-receipt\nImplement the smallest shared transformation receipt contract around one existing Archotraz operation, aligned with Phase 2 design PR #11 and without changing the wrapped operation's algorithm.\n\nRequired execution\n1. Reconcile the live implementation branch with PR #11 before mutation; preserve newer verified work and record any supersession.\n2. Implement only this bounded unit in isolated draft work. Wrap one existing operation; do not rewrite its algorithm.\n3. Preserve SQLite as canonical state, explicit UNKNOWN semantics, Dry Mode, evidence/provenance separation, and existing Warden/Bopo authority boundaries.\n4. Add meaningful behavior tests, run the relevant full suite, and inspect the exact diff.\n5. Record the resulting commit, test evidence, target checkpoint, blockers, and the next bounded unit using the result contract below.\n\nAcceptance criteria\n- Wrap exactly one existing operation without changing its algorithm or authority boundary.\n- Record transformation identity and semantic version, exact inputs, status, outputs or artifacts, evidence created, verification result, wall time, CPU time where measurable, and peak RAM where measurable.\n- Persist success and failure receipts through Archotraz's canonical SQLite evidence/state boundary with no partial success artifacts after a failed transformation.\n- Generate one operator-usable Capability Card or equivalent projection from the shared operation definition where practical.\n- Add behavior tests for success, failure, provenance, deterministic identity, and restart-safe receipt inspection; record the resulting commit and exact test evidence.\n\nExclusions\n- Do not implement the later lineage, Mechanism/Target/Case, bridge, or virtual-universe slices.\n- Do not replace Archotraz's SQLite authority, Warden/Bopo boundary, Dry Mode, or explicit UNKNOWN semantics.\n- Do not merge design PR #11 or deploy/publish from this task.\n- Do not make Panoptes a second Archotraz writer.\n\nTreat every completion claim as provisional until backed by a named artifact or test receipt.\n",
+        "scores": {
+          "authority_alignment": 1.0,
+          "target_state_grounding": 1.0,
+          "bounded_execution": 0.75,
+          "evidence_and_continuation": 1.0
+        },
+        "iteration": 1
+      },
+      {
+        "id": "archotraz-0001-control-ready",
+        "prompt": "ARCHOTRAZ EXECUTION PROMPT\n\nAuthority and ownership\n- You are the separate Archotraz executor. Mutate only AlkaiDynamics/Archotraz.\n- Panoptes is the control/generation side. Do not mutate Panoptes.\n- Recheck live GitHub state and later user corrections before writing.\n- A blocker redirects work to the highest-value planning/refinement action; it does not cancel continuation.\n\nRecovered target checkpoint\n- default branch: main at a48906982f003ee2ef8aca02b129299f8301fa3b\n- architecture draft: PR #11 at ae06c4f16acc2f821dfb019d184f021465cd7b5c (draft)\nActive work recorded by the controller:\n- pull_request #10 at 51cd3ed5bc9312bd52d87b5fb17afd48077ee02d (draft)\n\nNext bounded unit: shared-transformation-receipt\nImplement the smallest shared transformation receipt contract around one existing Archotraz operation, aligned with Phase 2 design PR #11 and without changing the wrapped operation's algorithm.\n\nRequired execution\n1. Reconcile the live implementation branch with PR #11 before mutation; preserve newer verified work and record any supersession.\n2. Implement only this bounded unit in isolated draft work. Wrap one existing operation; do not rewrite its algorithm.\n3. Preserve SQLite as canonical state, explicit UNKNOWN semantics, Dry Mode, evidence/provenance separation, and existing Warden/Bopo authority boundaries.\n4. Add meaningful behavior tests, run the relevant full suite, and inspect the exact diff.\n5. Record the resulting commit, test evidence, target checkpoint, blockers, and the next bounded unit using the result contract below.\n\nAcceptance criteria\n- Wrap exactly one existing operation without changing its algorithm or authority boundary.\n- Record transformation identity and semantic version, exact inputs, status, outputs or artifacts, evidence created, verification result, wall time, CPU time where measurable, and peak RAM where measurable.\n- Persist success and failure receipts through Archotraz's canonical SQLite evidence/state boundary with no partial success artifacts after a failed transformation.\n- Generate one operator-usable Capability Card or equivalent projection from the shared operation definition where practical.\n- Add behavior tests for success, failure, provenance, deterministic identity, and restart-safe receipt inspection; record the resulting commit and exact test evidence.\n\nExclusions\n- Do not implement the later lineage, Mechanism/Target/Case, bridge, or virtual-universe slices.\n- Do not replace Archotraz's SQLite authority, Warden/Bopo boundary, Dry Mode, or explicit UNKNOWN semantics.\n- Do not merge design PR #11 or deploy/publish from this task.\n- Do not make Panoptes a second Archotraz writer.\n\n\nContinuation contract\n- Use the prompt_id supplied outside this text as the idempotency key.\n- Never apply this prompt twice to the same target checkpoint.\n- Return panoptes.execution-result/v1 with prompt_id, status, target_checkpoint.commit, and concrete evidence.\n- For blocked or failed work, preserve the blocker and complete useful non-mutating refinement so the next heartbeat can continue.\n",
+        "scores": {
+          "authority_alignment": 1.0,
+          "target_state_grounding": 1.0,
+          "bounded_execution": 1.0,
+          "evidence_and_continuation": 1.0
+        },
+        "iteration": 1
+      }
+    ],
+    "frontier": [
+      "archotraz-0001-control-ready"
+    ],
+    "selected_candidate": "archotraz-0001-control-ready",
+    "status": "converged",
+    "stop_reason": "all_evaluation_slices_satisfied"
+  }
+}

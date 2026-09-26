@@ -1,0 +1,44 @@
+{
+  "schema_version": "panoptes.target-state/v1",
+  "project": "Archotraz",
+  "repository": "https://github.com/AlkaiDynamics/Archotraz",
+  "checkpoint": {
+    "default_branch": "main",
+    "default_sha": "a48906982f003ee2ef8aca02b129299f8301fa3b",
+    "architecture_pr": {
+      "number": 11,
+      "head_sha": "ae06c4f16acc2f821dfb019d184f021465cd7b5c",
+      "status": "draft"
+    },
+    "active_work": [
+      {
+        "kind": "pull_request",
+        "number": 10,
+        "head_sha": "51cd3ed5bc9312bd52d87b5fb17afd48077ee02d",
+        "status": "draft"
+      }
+    ]
+  },
+  "authority": {
+    "role": "control_generation_only",
+    "executor": "separate_archotraz_work_task",
+    "forbid_direct_mutation": true
+  },
+  "next_unit": {
+    "id": "shared-transformation-receipt",
+    "objective": "Implement the smallest shared transformation receipt contract around one existing Archotraz operation, aligned with Phase 2 design PR #11 and without changing the wrapped operation's algorithm.",
+    "acceptance_criteria": [
+      "Wrap exactly one existing operation without changing its algorithm or authority boundary.",
+      "Record transformation identity and semantic version, exact inputs, status, outputs or artifacts, evidence created, verification result, wall time, CPU time where measurable, and peak RAM where measurable.",
+      "Persist success and failure receipts through Archotraz's canonical SQLite evidence/state boundary with no partial success artifacts after a failed transformation.",
+      "Generate one operator-usable Capability Card or equivalent projection from the shared operation definition where practical.",
+      "Add behavior tests for success, failure, provenance, deterministic identity, and restart-safe receipt inspection; record the resulting commit and exact test evidence."
+    ],
+    "exclusions": [
+      "Do not implement the later lineage, Mechanism/Target/Case, bridge, or virtual-universe slices.",
+      "Do not replace Archotraz's SQLite authority, Warden/Bopo boundary, Dry Mode, or explicit UNKNOWN semantics.",
+      "Do not merge design PR #11 or deploy/publish from this task.",
+      "Do not make Panoptes a second Archotraz writer."
+    ]
+  }
+}

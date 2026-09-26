@@ -19,6 +19,8 @@ class PackageTests(unittest.TestCase):
                       metadata["tool"]["setuptools"]["package-data"]["panoptes"])
         self.assertIn("_vendor/QWORLD_LICENSE",
                       metadata["tool"]["setuptools"]["package-data"]["panoptes"])
+        self.assertIn("_vendor/GEPA_MCP_LICENSE",
+                      metadata["tool"]["setuptools"]["package-data"]["panoptes"])
         notice = (ROOT / "panoptes/_vendor/HERMES_LICENSE").read_text(encoding="utf-8")
         self.assertIn("MIT License", notice)
         self.assertIn("Hermes Labs", notice)
@@ -31,6 +33,9 @@ class PackageTests(unittest.TestCase):
         qworld_notice = (ROOT / "panoptes/_vendor/QWORLD_LICENSE").read_text(encoding="utf-8")
         self.assertIn("MIT License", qworld_notice)
         self.assertIn("Yuchang Su", qworld_notice)
+        gepa_notice = (ROOT / "panoptes/_vendor/GEPA_MCP_LICENSE").read_text(encoding="utf-8")
+        self.assertIn("MIT License", gepa_notice)
+        self.assertIn("GEPA MCP Server Contributors", gepa_notice)
 
 
 if __name__ == "__main__":

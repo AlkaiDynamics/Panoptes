@@ -56,11 +56,11 @@ class BrainstormerIntegrationTests(unittest.TestCase):
         self.assertIn("Inspect Source", qworld_label)
 
     def test_master_campaign_layout_is_bounded_and_fully_wired(self):
-        components = campaign(300)["components"]
+        components = campaign(360)["components"]
         result = plan_to_excalidraw(components)
         nodes = [item for item in result["elements"] if item["type"] != "arrow"]
         arrows = [item for item in result["elements"] if item["type"] == "arrow"]
-        self.assertEqual((len(nodes), len(arrows)), (601, 600))
+        self.assertEqual((len(nodes), len(arrows)), (721, 720))
         self.assertLessEqual(max(node["x"] + node["width"] for node in nodes), 4200)
         expected_edges = {(dependency, component["id"])
                           for component in components for dependency in component["deps"]}

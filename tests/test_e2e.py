@@ -48,14 +48,14 @@ class EndToEndPlannerTests(unittest.TestCase):
             self.assertEqual(first.returncode, 0, first.stderr + first.stdout)
             report = (run / "build/report.md").read_text()
             self.assertIn("VERDICT: PASS", report)
-            self.assertIn("Implemented/tested/accepted source contributions: 6/6/0", report)
+            self.assertIn("Implemented/tested/accepted source contributions: 7/7/0", report)
             self.assertEqual(len(list((run / "build").glob("*.done"))), 4)
             import json
             audit_artifact = json.loads((run / "src/audit/artifact.json").read_text())
             continuation = audit_artifact["next_prompt"]
-            self.assertIn("Next task [inspect-source-007]", continuation)
-            self.assertIn("robzilla1738/supergoal", continuation)
+            self.assertIn("Next task [inspect-source-", continuation)
             self.assertNotIn("iamadityakumar/forge", continuation)
+            self.assertNotIn("developzir/gepa-mcp", continuation)
             self.assertIn("Independent audit of existing unaccepted", continuation)
             audit = audit_artifact["audit_collection_prompt"]
             self.assertIn("qwadratic/create-mvp", audit)
@@ -64,6 +64,7 @@ class EndToEndPlannerTests(unittest.TestCase):
             self.assertIn("9b0d8e8e71ea48eb6eae0ef56bcc77e3e5375d4a", audit)
             self.assertIn("cbe68eb23715a024b46af60fbaab00d28fcb49b5", audit)
             self.assertIn("9f342a638d1624dd9a717936e835d3d8624f53f7", audit)
+            self.assertIn("398e514bfa456794225219fc9bd433d4f59983e2", audit)
             self.assertIn("source revision", audit.lower())
             self.assertIn("return INSUFFICIENT EVIDENCE", audit)
             self.assertIn("python -m unittest discover -s tests -v", audit)

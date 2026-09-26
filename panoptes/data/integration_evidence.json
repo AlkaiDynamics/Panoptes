@@ -9,13 +9,13 @@
       "license": "MIT",
       "implementation_paths": ["vendor/create-mvp/build.mk", "panoptes/e2e_agent.py", "examples/e2e/Makefile"],
       "behavior_test_paths": ["tests/test_e2e.py", "tests/test_corpus.py"],
-      "observed_outcome": "Actual GNU Make pipeline completed goal -> plan -> parallel builds -> checks -> final review, generating independently checked 72/300 candidate planning artifacts; tamper test rejected altered candidate count.",
+      "observed_outcome": "Actual GNU Make pipeline completed goal -> plan -> parallel builds -> checks -> final review, generating independently checked 72/360 candidate planning artifacts; tamper test rejected altered candidate count.",
       "local_patch": "Single-line rewrite of the jq effort expression in build.mk required for jq 1.7 here; the pinned engine and patch boundary are documented in docs/ARCHITECTURE.md.",
       "selected": true,
       "implemented": true,
       "tested_in_engine": true,
       "accepted": false,
-      "acceptance_reason": "Independent source-specific contribution review is pending; 72/300 product editions are incomplete."
+      "acceptance_reason": "Independent source-specific contribution review is pending; 72/360 product editions are incomplete."
     },
     {
       "repository": "hermes-labs-ai/hermes-blind",
@@ -73,7 +73,7 @@
       "license": "Apache-2.0",
       "implementation_paths": ["panoptes/integrations/brainstormer.py", "panoptes/cli.py", "panoptes/_vendor/BRAINSTORMER_NOTICE"],
       "behavior_test_paths": ["tests/test_brainstormer.py"],
-      "observed_outcome": "Panoptes projects a validated component DAG into deterministic Excalidraw element skeletons with bounded hierarchical positions, visible repository identities, semantic task shapes and exact dependency arrows. Behavior tests render both the real 72-source campaign (145 nodes/144 edges) and master 300-source campaign (601 nodes/600 edges), and the CLI writes the same projection without model credentials or web services.",
+      "observed_outcome": "Panoptes projects a validated component DAG into deterministic Excalidraw element skeletons with bounded hierarchical positions, visible repository identities, semantic task shapes and exact dependency arrows. Behavior tests render both the real 72-source campaign (145 nodes/144 edges) and master 360-source campaign (721 nodes/720 edges), and the CLI writes the same projection without model credentials or web services.",
       "local_patch": "Algorithmic adaptation of Brainstormer's pinned deterministic diagram fallback and hierarchical layout semantics; no upstream JavaScript is copied. The React, Excalidraw UI, Express, Socket.IO, unrestricted CORS, in-memory sessions and Ollama/OpenAI provider paths are deliberately excluded.",
       "selected": true,
       "implemented": true,
@@ -96,6 +96,22 @@
       "tested_in_engine": true,
       "accepted": false,
       "acceptance_reason": "The typed RET execution and end-to-end attachment are tested through pending_review, but generated rubric quality and independent source-specific review remain outstanding."
+    },
+    {
+      "repository": "developzir/gepa-mcp",
+      "url": "https://github.com/developzir/gepa-mcp",
+      "source_revision": "398e514bfa456794225219fc9bd433d4f59983e2",
+      "source_paths": ["src/gepa_mcp/gepa_core.py", "pyproject.toml", "LICENSE"],
+      "license": "MIT",
+      "implementation_paths": ["panoptes/integrations/gepa.py", "panoptes/control.py", "panoptes/cli.py", "panoptes/_vendor/GEPA_MCP_LICENSE"],
+      "behavior_test_paths": ["tests/test_gepa_control.py", "tests/test_control.py"],
+      "observed_outcome": "A scheduled control invocation now evaluates target-specific prompt candidates over explicit slices, preserves a Pareto frontier and candidate pool, enforces metric budgets, switches proposal engines on plateaus or exhausted retries, stops on convergence, persists one outstanding prompt with a stable identity, and applies an executor result exactly once before issuing the next prompt.",
+      "local_patch": "Provider-neutral algorithmic adaptation of the pinned reflective optimization loop, extended with durable scheduling semantics needed by Panoptes. No upstream Python source is copied. Gemini/MCP/provider code is excluded; the official MIT GEPA implementation at d771eb21b5dd3228bc3f567293d2ccfc423fc900 was inspected as a semantic reference for per-slice Pareto state and bounded engine control.",
+      "selected": true,
+      "implemented": true,
+      "tested_in_engine": true,
+      "accepted": false,
+      "acceptance_reason": "The control loop and Archotraz handoff behavior are tested, but reflective prompt quality, the external executor return leg, and independent source-specific review remain outstanding."
     }
   ]
 }

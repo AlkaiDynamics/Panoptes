@@ -1,6 +1,6 @@
 # Panoptes Deployment Runbook
 
-This runbook deploys the current deterministic Panoptes planner/continuation core. It does **not** imply that autonomous scheduler dispatch, external LLM inference, or the 72/300 integration goals are complete.
+This runbook operates the current Panoptes planner/continuation core. External ChatGPT Work/Tasks owns wall-clock recurrence. This does **not** imply that reflective LLM inference or the 72/360 integration goals are complete.
 
 ## 1. Deployment target
 
@@ -92,9 +92,9 @@ substitute for independent review of the proposed rubric's quality.
 Expected product-level interpretation:
 
 - planning pipeline: verified by tests and end-to-end example;
-- implemented/tested source contributions: currently 6;
+- implemented/tested source contributions: currently 7;
 - independently accepted operational integrations: currently 0;
-- 72-source and 300-source campaigns: planning artifacts, not completion claims.
+- 72-source and 360-source campaigns: planning artifacts, not completion claims.
 
 If the tests or end-to-end build fail, do not start or advance the persistent deployment state until the failure is understood.
 
@@ -110,7 +110,7 @@ python -m panoptes.cli campaign --target 72 --output state/panoptes-72.json
 Optionally generate the master campaign separately:
 
 ```sh
-python -m panoptes.cli campaign --target 300 --output state/panoptes-300.json
+python -m panoptes.cli campaign --target 360 --output state/panoptes-360.json
 ```
 
 Do not load both plans into the same database. The installed DAG is intentionally immutable without an explicit migration.
@@ -123,7 +123,7 @@ For the 72-source operational campaign:
 python -m panoptes.cli --db state/panoptes.sqlite3 init \
   'Deliver the Panoptes automated MVP prompt architecture' \
   --constraint '72 means distinct supplied repositories with operational integration evidence' \
-  --constraint '300 is the master distinct-repository target' \
+  --constraint '360 is the master distinct-repository target' \
   --constraint 'A blocker redirects work; it does not cancel the next run'
 ```
 
@@ -171,7 +171,7 @@ python -m panoptes.cli --db state/panoptes.sqlite3 task-record TASK_ID CHECKPOIN
   --evidence 'exact blocker and source reference'
 ```
 
-When no task is dependency-ready, `next` returns a planning fallback. The scheduler wrapper must keep the next recurring run enabled.
+When no task is dependency-ready, `next` returns a planning fallback. The external Work task must keep the next recurring run enabled.
 
 ## 8. Scheduler integration contract
 
@@ -237,10 +237,11 @@ Rollback code by restoring the previous reviewed commit. Roll back state only fr
 
 ### Still open for autonomous MVP deployment
 
-- scheduler/alarm dispatch is not wired in this repository;
+- an external ChatGPT Work task must invoke the bounded control run; Panoptes intentionally
+  does not provide a competing wall-clock scheduler or alarm daemon;
 - external LLM inference is not wired;
 - independent acceptance automation is not wired;
 - the ledger reports zero independently accepted integrations;
-- neither the 72-source nor 300-source operational target is complete.
+- neither the 72-source nor 360-source operational target is complete.
 
-These open items do not invalidate deployment of the deterministic planning core. They do block describing the current repository as a fully autonomous completed MVP-integration system.
+These open items do not invalidate deployment of the deterministic planning core. They do block describing the current repository as a fully autonomous completed MVP-integration system. GEPA's internal evaluation scheduling, retries, engine switching, and convergence control remain Panoptes responsibilities and are not wall-clock dispatch.
