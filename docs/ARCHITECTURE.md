@@ -69,6 +69,10 @@ Inspected confirmed capability labels replace description-derived hypotheses for
 
 The kernel is intentionally deterministic. It does not itself call an LLM, schedule an alarm, or claim source integrations.
 
+### Native inference boundary
+
+`panoptes/inference.py` defines an asynchronous `InferenceBackend` protocol and a thin `InterceptionBackend` client. It uses the actual bridge contract in `zhenrez/Interception` PR #4 at `a7bf0d5df64c4696a081404771c146233c3bce37`. Interception retains the durable request ledger, checkpoint and RETURN validation, GitHub/Work transport, and caller continuation. Panoptes must save only the returned request ID in its own existing scheduler node checkpoint. The scheduler-to-client caller is not wired yet.
+
 ### 4. Dependency-aware planner
 
 `panoptes/planner.py` validates bounded component DAGs, rejects cycles and missing dependencies, installs a plan once, and selects the next ready task by longest remaining dependency chain.
@@ -126,7 +130,7 @@ The Brainstormer adapter is also dependency-free. It consumes an already-validat
 The current repository does not provide:
 
 - autonomous scheduler/alarm dispatch;
-- external LLM inference execution;
+- an autonomous scheduler caller for the native inference client;
 - automatic implementation of elected repositories;
 - independent acceptance automation;
 - a completed 72-source or 300-source operational product.
