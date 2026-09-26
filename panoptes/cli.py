@@ -1,6 +1,7 @@
 """Manual interface for one bounded continuation cycle."""
 
 import argparse
+from datetime import datetime
 from contextlib import contextmanager
 import json
 import os
@@ -14,6 +15,7 @@ from .integrations.genetic_prompt_lab import plan_evolution_round
 from .integrations.brainstormer import plan_to_excalidraw
 from .integrations.qworld import advance_criteria_run, build_criteria_plan, start_criteria_run
 from .control import run_invocation
+from .account_capacity import evaluate_capacity_gate
 
 
 def _write_json(path, payload):
@@ -99,12 +101,19 @@ def main(argv=None):
     criteria_advance.add_argument("state", help="Current Qworld run-state JSON")
     criteria_advance.add_argument("result", help="JSON result for the ready stage")
     criteria_advance.add_argument("--output", help="Save advanced state; may equal the state path")
+    capacity = commands.add_parser(
+        "capacity-gate", help="Read one account-capacity observation and derive a read-only Work admission decision")
+    capacity.add_argument("--state", required=True, help="panoptes.account-capacity/v1 JSON")
+    capacity.add_argument("--account", required=True, help="Expected account identifier")
+    capacity.add_argument("--now", help="Optional timezone-aware ISO-8601 time for deterministic evaluation")
     control = commands.add_parser(
         "control-run", help="Recover one scheduled control invocation and emit one target prompt")
     control.add_argument("--target", required=True, help="Validated target-state JSON")
     control.add_argument("--state", required=True, help="Persistent Panoptes control-state JSON")
     control.add_argument("--output", required=True, help="Target-specific next-prompt artifact")
     control.add_argument("--result", help="Optional executor result from the preceding prompt")
+    control.add_argument("--capacity", help="Optional account-capacity JSON; when supplied, Panoptes runs only if allow_panoptes=true")
+    control.add_argument("--account", help="Expected account identifier for --capacity")
     plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
     plan.add_argument("file")
     plan.add_argument("checkpoint", type=int)
@@ -215,7 +224,27 @@ def main(argv=None):
             result = advance_criteria_run(state, stage_result)
         print(json.dumps(result, indent=2))
         return
+    if args.command == "capacity-gate":
+        with open(args.state, encoding="utf-8") as source:
+            capacity_state = json.load(source)
+        now = datetime.fromisoformat(args.now) if args.now else None
+        print(json.dumps(evaluate_capacity_gate(
+            capacity_state, account=args.account, now=now), indent=2))
+        return
     if args.command == "control-run":
+        if bool(args.capacity) != bool(args.account):
+            raise ValueError("--capacity and --account must be supplied together")
+        if args.capacity:
+            with open(args.capacity, encoding="utf-8") as source:
+                capacity_state = json.load(source)
+            gate = evaluate_capacity_gate(capacity_state, account=args.account)
+            if not gate["allow_panoptes"]:
+                print(json.dumps({
+                    "status": "capacity-gated",
+                    "capacity": gate,
+                    "project_state_changed": False,
+                }, indent=2))
+                return
         paths = [Path(args.target).resolve(), Path(args.state).resolve(),
                  Path(args.output).resolve()]
         if args.result:
