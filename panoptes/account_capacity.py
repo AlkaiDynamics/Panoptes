@@ -128,6 +128,7 @@ def evaluate_capacity_gate(
         "observed_status": status,
         "effective_status": status,
         "admit_work": False,
+        "allow_panoptes": False,
         "mode": "blocked",
         "recommended_model": None,
         "recommended_reasoning": None,
@@ -143,6 +144,7 @@ def evaluate_capacity_gate(
     elif status == "AVAILABLE":
         decision.update(
             admit_work=True,
+            allow_panoptes=True,
             mode="normal",
             recommended_model="Sol",
             recommended_reasoning="high",
@@ -151,6 +153,7 @@ def evaluate_capacity_gate(
     elif status == "DEGRADED":
         decision.update(
             admit_work=True,
+            allow_panoptes=True,
             mode="degraded",
             recommended_model="Sol",
             recommended_reasoning="low",
@@ -159,6 +162,7 @@ def evaluate_capacity_gate(
     elif status == "PROBE_AVAILABLE":
         decision.update(
             admit_work=True,
+            allow_panoptes=False,
             mode="probe",
             recommended_model="Sol",
             recommended_reasoning="low",
@@ -169,6 +173,7 @@ def evaluate_capacity_gate(
             decision.update(
                 effective_status="PROBE_AVAILABLE",
                 admit_work=True,
+                allow_panoptes=False,
                 mode="probe",
                 recommended_model="Sol",
                 recommended_reasoning="low",
