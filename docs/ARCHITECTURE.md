@@ -10,6 +10,22 @@ The lightweight target is 72 distinct supplied repositories with operational int
 
 GEPA is the primary prompt-evolution and optimization spine. `qwadratic/create-mvp` remains the end-to-end goal → plan → dependency-ordered build → checks → review spine. The Prompt/Skills Library is an incrementally assembled source of exceptional capabilities behind stable interfaces; it is neither the principal architecture nor a prerequisite for the heartbeat to function.
 
+## Account-capacity pre-gate
+
+Work/Codex account capacity is external control state, not project state. Panoptes stores one `panoptes.account-capacity/v1` observation per account and derives a read-only admission decision before substantive control work.
+
+The four observed states are `AVAILABLE`, `DEGRADED`, `EXHAUSTED`, and `PROBE_AVAILABLE`. Exhaustion may be set only from explicit evidence whose source is one of `settings-usage`, `limit-banner`, `codex-status`, or `manual`; an ordinary Work invocation failure is never capacity evidence.
+
+`reset_at` is an observation, not a durable scheduling truth. While an explicit `EXHAUSTED` reset is still in the future, Panoptes fails closed without touching project continuation state. Once the observed reset time has elapsed, only a cheap Sol/low probe is admissible; the account is not promoted to `AVAILABLE` merely because time passed. A successful explicit probe observation may later update the external account record.
+
+Alkai and zhenrez records are independent. Exhaustion on one account never authorizes failover to the other account.
+
+The gate has two decisions:
+- `admit_work`: whether a Work invocation is worth attempting at all.
+- `allow_panoptes`: whether substantive Panoptes continuation may run. Probe mode deliberately sets this to false.
+
+No usage scraping or machine-readable allowance inference is implemented in this slice.
+
 ## System flow
 
 ```text
@@ -113,6 +129,7 @@ These rules are enforced by code and must remain true across deployment wrappers
 9. **Descriptions are not evidence.** Repository descriptions and generated prompts cannot be used to claim integration completion.
 10. **Draft commits are first-class checkpoints.** A verified executor commit may remain on a refreshed active branch or pull request; it is not forced onto `main` merely to advance control state.
 11. **Success advances the unit.** A verified result must identify the outstanding unit and supply a distinct next unit that exactly matches independently refreshed target state.
+12. **Capacity state is external and explicit.** Work failure cannot change account capacity state, account records never cross-apply, and elapsed reset time authorizes only a probe until fresh evidence restores availability.
 
 ## Counting model
 
