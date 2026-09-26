@@ -1,0 +1,14 @@
+{
+  "schema_version": "panoptes.account-capacity/v1",
+  "account": "alkai",
+  "status": "EXHAUSTED",
+  "limit_type": "weekly",
+  "observed_at": "2026-09-26T09:20:00-07:00",
+  "reset_at": "2026-09-28T14:20:00-07:00",
+  "source": "settings-usage",
+  "evidence": "weekly allowance exhausted",
+  "observation_freshness": "current",
+  "last_probe_at": null,
+  "last_probe_result": null,
+  "updated_by": "manual"
+}
