@@ -1,0 +1,14 @@
+{
+  "schema_version": "panoptes.account-capacity/v1",
+  "account": "zhenrez",
+  "status": "AVAILABLE",
+  "limit_type": null,
+  "observed_at": "2026-09-26T09:20:00-07:00",
+  "reset_at": null,
+  "source": "manual",
+  "evidence": "user-provided zhenrez capacity state declared AVAILABLE during capacity-state design",
+  "observation_freshness": "current",
+  "last_probe_at": null,
+  "last_probe_result": null,
+  "updated_by": "manual"
+}
