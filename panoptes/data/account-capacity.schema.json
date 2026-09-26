@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "panoptes.account-capacity/v1",
+  "title": "Panoptes Account Capacity Observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "account",
+    "status",
+    "limit_type",
+    "observed_at",
+    "reset_at",
+    "source",
+    "evidence",
+    "observation_freshness",
+    "last_probe_at",
+    "last_probe_result",
+    "updated_by"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "panoptes.account-capacity/v1"
+    },
+    "account": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "AVAILABLE",
+        "DEGRADED",
+        "EXHAUSTED",
+        "PROBE_AVAILABLE"
+      ]
+    },
+    "limit_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "five_hour",
+        "weekly",
+        "credits",
+        "combined",
+        "unknown",
+        null
+      ]
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reset_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "source": {
+      "enum": [
+        "settings-usage",
+        "limit-banner",
+        "codex-status",
+        "manual"
+      ]
+    },
+    "evidence": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observation_freshness": {
+      "enum": [
+        "current",
+        "stale",
+        "unknown"
+      ]
+    },
+    "last_probe_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "last_probe_result": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "updated_by": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
