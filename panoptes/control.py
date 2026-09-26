@@ -27,6 +27,21 @@ def _is_sha(value):
             and all(character in "0123456789abcdef" for character in value))
 
 
+def _validate_unit(unit, label="next_unit"):
+    if (not isinstance(unit, dict) or not isinstance(unit.get("id"), str)
+            or not unit["id"].strip()
+            or not isinstance(unit.get("objective"), str) or not unit["objective"].strip()
+            or not isinstance(unit.get("acceptance_criteria"), list)
+            or not unit["acceptance_criteria"]
+            or not all(isinstance(item, str) and item.strip()
+                       for item in unit["acceptance_criteria"])
+            or not isinstance(unit.get("exclusions"), list)
+            or not all(isinstance(item, str) and item.strip()
+                       for item in unit["exclusions"])):
+        raise ValueError(
+            f"{label} requires an ID, objective, acceptance criteria, and exclusions")
+
+
 def _validate_target(target):
     if not isinstance(target, dict) or target.get("schema_version") != TARGET_SCHEMA:
         raise ValueError("target state must use panoptes.target-state/v1")
@@ -39,23 +54,28 @@ def _validate_target(target):
     if (not isinstance(architecture, dict) or architecture.get("number") != 11
             or not _is_sha(architecture.get("head_sha"))):
         raise ValueError("Archotraz architecture PR #11 checkpoint is required")
+    active_work = checkpoint.get("active_work", [])
+    if not isinstance(active_work, list):
+        raise ValueError("target checkpoint active_work must be a list")
+    for item in active_work:
+        if (not isinstance(item, dict) or item.get("kind") not in {"pull_request", "branch"}
+                or not _is_sha(item.get("head_sha"))
+                or not isinstance(item.get("status"), str) or not item["status"].strip()):
+            raise ValueError("each active_work entry requires a kind, head SHA, and status")
+        if item["kind"] == "pull_request" and (
+                not isinstance(item.get("number"), int) or isinstance(item.get("number"), bool)
+                or item["number"] < 1):
+            raise ValueError("pull-request active_work requires a positive number")
+        if item["kind"] == "branch" and (
+                not isinstance(item.get("ref"), str) or not item["ref"].strip()):
+            raise ValueError("branch active_work requires a ref")
     authority = target.get("authority")
     if (not isinstance(authority, dict)
             or authority.get("role") != "control_generation_only"
             or authority.get("executor") != "separate_archotraz_work_task"
             or authority.get("forbid_direct_mutation") is not True):
         raise ValueError("target authority must preserve the separate Archotraz executor")
-    unit = target.get("next_unit")
-    if (not isinstance(unit, dict) or not unit.get("id")
-            or not isinstance(unit.get("objective"), str) or not unit["objective"].strip()
-            or not isinstance(unit.get("acceptance_criteria"), list)
-            or not unit["acceptance_criteria"]
-            or not all(isinstance(item, str) and item.strip()
-                       for item in unit["acceptance_criteria"])
-            or not isinstance(unit.get("exclusions"), list)
-            or not all(isinstance(item, str) and item.strip()
-                       for item in unit["exclusions"])):
-        raise ValueError("target next_unit requires an objective, acceptance criteria, and exclusions")
+    _validate_unit(target.get("next_unit"), "target next_unit")
 
 
 def _render_prompt(target, *, mode, previous_result=None):
@@ -64,7 +84,9 @@ def _render_prompt(target, *, mode, previous_result=None):
     criteria = "\n".join(f"- {item}" for item in unit["acceptance_criteria"])
     exclusions = "\n".join(f"- {item}" for item in unit["exclusions"])
     active = "\n".join(
-        f"- {item['kind']} #{item['number']} at {item['head_sha']} ({item['status']})"
+        f"- {item['kind']} "
+        f"{'#' + str(item['number']) if item['kind'] == 'pull_request' else item['ref']} "
+        f"at {item['head_sha']} ({item['status']})"
         for item in checkpoint.get("active_work", [])
     ) or "- none recorded"
     prompt = f"""ARCHOTRAZ EXECUTION PROMPT
@@ -113,12 +135,14 @@ Evidence:
     if mode == "evidence":
         prompt += "\nTreat every completion claim as provisional until backed by a named artifact or test receipt.\n"
     if mode == "control-ready":
-        prompt += """
+        prompt += f"""
 
 Continuation contract
 - Use the prompt_id supplied outside this text as the idempotency key.
 - Never apply this prompt twice to the same target checkpoint.
-- Return panoptes.execution-result/v1 with prompt_id, status, target_checkpoint.commit, and concrete evidence.
+- Return the exact panoptes.execution-result/v1 JSON envelope supplied outside this text.
+- Set completed_unit_id to {unit['id']} and propose one explicit next_unit.
+- A verified draft commit must be visible on a refreshed active branch or pull-request checkpoint; it does not need to be merged to main.
 - For blocked or failed work, preserve the blocker and complete useful non-mutating refinement so the next heartbeat can continue.
 """
     return prompt.strip() + "\n"
@@ -186,14 +210,36 @@ def _build_artifact(target, sequence, previous_result=None):
             "engine": run["current_engine"],
         },
         "prompt": selected["prompt"],
+        "work_item": copy.deepcopy(target["next_unit"]),
         "acceptance_criteria": list(target["next_unit"]["acceptance_criteria"]),
         "exclusions": list(target["next_unit"]["exclusions"]),
         "previous_result": copy.deepcopy(previous_result),
         "result_contract": {
             "schema_version": RESULT_SCHEMA,
             "prompt_id": prompt_id,
-            "required": ["target_repository", "status", "target_checkpoint.commit", "evidence"],
+            "required": [
+                "completed_unit_id", "target_repository", "status",
+                "target_checkpoint.commit", "evidence", "next_unit",
+            ],
             "allowed_status": ["verified", "blocked", "failed", "deferred"],
+            "template": {
+                "schema_version": RESULT_SCHEMA,
+                "prompt_id": prompt_id,
+                "completed_unit_id": target["next_unit"]["id"],
+                "target_repository": ARCHOTRAZ,
+                "status": "verified|blocked|failed|deferred",
+                "target_checkpoint": {
+                    "commit": "40-character Archotraz commit SHA or null",
+                    "ref": "branch or pull-request reference",
+                },
+                "evidence": ["concrete test, diff, or blocker receipt"],
+                "next_unit": {
+                    "id": "next bounded unit ID",
+                    "objective": "next bounded objective",
+                    "acceptance_criteria": ["objective acceptance criterion"],
+                    "exclusions": ["explicit exclusion"],
+                },
+            },
         },
     }
     return artifact, run, target_fingerprint
@@ -210,6 +256,12 @@ def _apply_result(state, target, result):
         raise ValueError("execution result does not match the outstanding prompt")
     if result.get("target_repository") != ARCHOTRAZ:
         raise ValueError("execution result targets the wrong repository")
+    work_item = outstanding.get("artifact", {}).get("work_item")
+    if not isinstance(work_item, dict) or not work_item.get("id"):
+        raise ValueError("outstanding prompt lacks its persisted work item")
+    completed_unit_id = result.get("completed_unit_id")
+    if completed_unit_id != work_item["id"]:
+        raise ValueError("execution result does not match the outstanding work item")
     status = result.get("status")
     if status not in {"verified", "blocked", "failed", "deferred"}:
         raise ValueError("execution result has an unsupported status")
@@ -218,11 +270,23 @@ def _apply_result(state, target, result):
                                                 for item in evidence):
         raise ValueError("execution result evidence must be a list of strings")
     commit = (result.get("target_checkpoint") or {}).get("commit")
+    next_unit = result.get("next_unit")
+    _validate_unit(next_unit, "execution result next_unit")
+    if next_unit != target["next_unit"]:
+        raise ValueError("execution result next_unit does not match refreshed target state")
     if status == "verified":
         if not evidence or not _is_sha(commit):
             raise ValueError("verified execution requires evidence and an immutable commit")
-        if target["checkpoint"]["default_sha"] != commit:
-            raise ValueError("verified execution requires a refreshed target checkpoint")
+        refreshed_commits = {target["checkpoint"]["default_sha"]}
+        refreshed_commits.update(
+            item.get("head_sha") for item in target["checkpoint"].get("active_work", [])
+            if isinstance(item, dict)
+        )
+        if commit not in refreshed_commits:
+            raise ValueError(
+                "verified execution requires its commit in the refreshed target checkpoint")
+        if next_unit["id"] == completed_unit_id:
+            raise ValueError("verified execution must advance to a distinct next unit")
     elif commit is not None and not _is_sha(commit):
         raise ValueError("target checkpoint commit must be an immutable SHA")
 

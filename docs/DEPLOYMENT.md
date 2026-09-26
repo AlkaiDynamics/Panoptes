@@ -198,6 +198,16 @@ Required behavior:
 
 For a 60-minute loop, cadence belongs in the external scheduler. The Panoptes state machine should remain cadence-agnostic.
 
+### Archotraz executor return
+
+The executor must return the exact JSON template embedded at `result_contract.template` in `next-prompt.json`. Before ingestion, refresh `target-state.json` from live GitHub evidence:
+
+- keep `default_sha` at the observed default-branch commit;
+- add or update the executor branch/PR in `active_work` so its `head_sha` equals the reported commit;
+- replace `next_unit` with the executor's proposed next unit only after reconciling it against current dependencies and user corrections.
+
+Then invoke `control-run` with `--result`. Panoptes rejects a result for the wrong prompt or work item, a commit absent from the refreshed checkpoint, a next-unit mismatch, a duplicate application, or verified work that attempts to reissue the completed unit. Draft work does not need to be merged to `main` for this handoff.
+
 ## 9. Persistence and backup
 
 Treat the SQLite database as deployment state, not cache.

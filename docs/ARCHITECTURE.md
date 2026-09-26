@@ -44,7 +44,7 @@ Wall-clock recurrence belongs only to ChatGPT Work/Tasks. `panoptes/control.py` 
 
 `panoptes/integrations/gepa.py` adapts the pinned `developzir/gepa-mcp` reflective optimization loop at `398e514bfa456794225219fc9bd433d4f59983e2`. It adds the persistent provider-neutral scheduling semantics Panoptes requires: candidate/frontier state, evaluation slices, iterations, plateau-driven engine switching, bounded retries, metric budgets, and explicit convergence. The official MIT GEPA implementation at `d771eb21b5dd3228bc3f567293d2ccfc423fc900` is a semantic reference for per-slice Pareto state and bounded engine control. Model-backed reflection, when needed later, must use the Interception inference seam.
 
-The first operational target is Archotraz. `examples/archotraz/target-state.json`, `control-state.json`, and `next-prompt.json` prove control/generation ownership only. The separate Archotraz Work task owns repository mutation and returns a matching `panoptes.execution-result/v1` record.
+The first operational target is Archotraz. `examples/archotraz/target-state.json`, `control-state.json`, and `next-prompt.json` prove control/generation ownership only. The separate Archotraz Work task owns repository mutation and returns the exact `panoptes.execution-result/v1` envelope embedded in the prompt artifact. A verified result names the completed unit, concrete evidence, its immutable Archotraz commit, and a proposed next unit. Panoptes accepts the result only after refreshed target state independently contains that commit on `main` or in `active_work` and carries the same next-unit contract. Verified work must advance to a distinct unit; blocked or failed work may preserve or redirect it.
 
 ### 2. End-to-end planning driver
 
@@ -111,6 +111,8 @@ These rules are enforced by code and must remain true across deployment wrappers
 7. **Plan replacement is explicit.** Installing a different DAG over an existing plan fails.
 8. **Blockers redirect work.** When execution is blocked, the next prompt must move to useful planning, inspection, interface, fixture, or evidence work and keep continuation enabled.
 9. **Descriptions are not evidence.** Repository descriptions and generated prompts cannot be used to claim integration completion.
+10. **Draft commits are first-class checkpoints.** A verified executor commit may remain on a refreshed active branch or pull request; it is not forced onto `main` merely to advance control state.
+11. **Success advances the unit.** A verified result must identify the outstanding unit and supply a distinct next unit that exactly matches independently refreshed target state.
 
 ## Counting model
 

@@ -63,7 +63,19 @@ python -m panoptes.cli control-run \
   --output examples/archotraz/next-prompt.json
 ```
 
-The checked-in artifact is scoped to Archotraz and instructs the separate Archotraz Work task. Panoptes does not mutate Archotraz. A repeated invocation at the same target checkpoint returns the same `prompt_id`; a later run must ingest a matching `panoptes.execution-result/v1` before advancing.
+The checked-in artifact is scoped to Archotraz and instructs the separate Archotraz Work task. Panoptes does not mutate Archotraz. A repeated invocation at the same target checkpoint returns the same `prompt_id`; a later run must ingest a matching `panoptes.execution-result/v1` before advancing. The artifact includes the exact result template. For verified draft work, refresh `active_work` to contain the reported commit and advance `next_unit` to the distinct unit returned by the executor; merging the executor commit to `main` is not required.
+
+Ingest the result only after refreshing the target-state file from live GitHub evidence:
+
+```sh
+python -m panoptes.cli control-run \
+  --target examples/archotraz/target-state.json \
+  --state examples/archotraz/control-state.json \
+  --result archotraz-execution-result.json \
+  --output examples/archotraz/next-prompt.json
+```
+
+The result's `completed_unit_id` must match the outstanding artifact. Its `next_unit` must exactly match the refreshed target state, and a verified result must advance to a different unit. These gates prevent a successful executor run from silently reissuing the work it just completed.
 
 ## Optional adapters
 
