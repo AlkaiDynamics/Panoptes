@@ -86,6 +86,17 @@
       "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
     },
     {
+      "url": "https://github.com/iamadityakumar/forge",
+      "revision": "a80c38545ae09db5e76ecd2f4da91e23f19a39c3",
+      "status": "partial_code_inspection",
+      "evidence_paths": ["README.md", "internal/worker/loop.go", "internal/llm/groq.go", "go.mod"],
+      "labels": {"confirmed": ["agents_orchestration", "execution_automation", "reliability_state"], "contradicted": [], "unverified": ["planning_decision", "software_engineering"]},
+      "license": {"reported": "UNKNOWN", "evidence": "https://github.com/iamadityakumar/forge/tree/a80c38545ae09db5e76ecd2f4da91e23f19a39c3", "file_read": false},
+      "constraints": "Pinned Git tree has no license file, although README displays an MIT badge. Go worker and PostgreSQL job lifecycle overlap Panoptes continuation state; direct Groq backend crosses the agreed Interception inference boundary. Review license and architecture before reuse; no code copied.",
+      "integration_disposition": "deferred_pending_license_and_interception_boundary_review",
+      "selected": false, "implemented": false, "tested_in_engine": false, "accepted": false
+    },
+    {
       "url": "https://github.com/wangshengyi-del/PNSA",
       "revision": null,
       "status": "assessed_empty_repository",

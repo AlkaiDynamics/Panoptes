@@ -70,12 +70,13 @@ def campaign(target=72, rows=None):
         raise ValueError("target must fit the distinct source corpus")
     # The planning framework is already wired into Panoptes; inspect its
     # contribution first so the campaign starts from a real code path.
-    foundation = next((r for r in sources if r["repository"] == "qwadratic/create-mvp"), None)
+    eligible = [row for row in sources
+                if row["inspection_status"] != "assessed_empty_repository"
+                and not row.get("integration_disposition", "").startswith("deferred")]
+    foundation = next((r for r in eligible if r["repository"] == "qwadratic/create-mvp"), None)
     chosen = [foundation] if foundation is not None else []
     coverage = {}
-    remaining = [row for row in sources
-                 if row["inspection_status"] != "assessed_empty_repository"
-                 and not row.get("integration_disposition", "").startswith("deferred")]
+    remaining = eligible.copy()
     if foundation is not None:
         remaining.remove(foundation)
         for label in foundation["selection_labels"]:

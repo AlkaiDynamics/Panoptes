@@ -27,6 +27,11 @@ class CorpusCampaignTests(unittest.TestCase):
         self.assertEqual(hermes["pinned_revision"], "61c270933291e2c726d09aaa8f66edc5ab369dce")
         react = next(s for s in sources if s["repository"] == "Hiteshgottapu/ReAct-AI")
         self.assertTrue(react["integration_disposition"].startswith("deferred"))
+        forge = next(s for s in sources if s["repository"] == "iamadityakumar/forge")
+        self.assertEqual(forge["pinned_revision"], "a80c38545ae09db5e76ecd2f4da91e23f19a39c3")
+        self.assertEqual(forge["license"], "UNKNOWN")
+        self.assertEqual(forge["integration_disposition"],
+                         "deferred_pending_license_and_interception_boundary_review")
         self.assertEqual(len({source["url"] for source in sources}), 434)
         self.assertEqual(next(s for s in sources if s["repository"] == "qwadratic/create-mvp")["inspection_status"], "partial_code_inspection")
         for target in (72, 300):
@@ -34,6 +39,8 @@ class CorpusCampaignTests(unittest.TestCase):
             self.assertEqual(len(draft["candidates"]), target)
             self.assertEqual(len({s["url"] for s in draft["candidates"]}), target)
             self.assertNotIn("wangshengyi-del/PNSA", {s["repository"] for s in draft["candidates"]})
+            self.assertNotIn("iamadityakumar/forge", {s["repository"] for s in draft["candidates"]})
+            self.assertEqual(draft["candidates"][6]["repository"], "robzilla1738/supergoal")
             self.assertFalse(any(s["integration_disposition"].startswith("deferred")
                                  for s in draft["candidates"]))
             genetic = next(s for s in draft["candidates"]
@@ -44,6 +51,18 @@ class CorpusCampaignTests(unittest.TestCase):
             self.assertEqual(draft["operational_integrations_claimed"], 0)
             self.assertEqual(len(draft["components"]), 2 * target + 1)
             self.assertEqual(len(draft["components"][-1]["deps"]), target)
+
+    def test_deferred_foundation_and_elected_source_cannot_reenter_campaigns(self):
+        sources = load_corpus()
+        for row in sources:
+            if row["repository"] in {"qwadratic/create-mvp", "robzilla1738/supergoal"}:
+                row["integration_disposition"] = "deferred_test_boundary_review"
+        for target in (72, 300):
+            draft = campaign(target, sources)
+            self.assertEqual(len(draft["candidates"]), target)
+            self.assertFalse({"qwadratic/create-mvp", "robzilla1738/supergoal",
+                              "iamadityakumar/forge"} &
+                             {row["repository"] for row in draft["candidates"]})
 
     def test_generated_plan_is_runnable_and_retains_source_identity(self):
         with tempfile.TemporaryDirectory() as folder:

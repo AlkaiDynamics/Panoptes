@@ -55,6 +55,8 @@ The pipeline performs goal → plan → dependency-ordered builds → checks →
 
 Inspected confirmed capability labels replace description-derived hypotheses for selection. Deferred candidates are backfilled so they do not consume target slots.
 
+At pinned `iamadityakumar/forge` revision `a80c38545ae09db5e76ecd2f4da91e23f19a39c3`, the Git tree has no license file despite the README's MIT badge. Its worker/PostgreSQL lifecycle overlaps Panoptes continuation, and its direct Groq backend conflicts with the Interception inference boundary. The evidence registry defers it pending license and boundary review. Slot 007 backfills with `robzilla1738/supergoal` in both candidate plans; that source is an uninspected hypothesis requiring its own pinned code and license review before integration. The contribution ledger stays at six implemented, six tested, zero independently accepted.
+
 ### 3. Continuation kernel
 
 `panoptes/core.py` stores durable state in SQLite using WAL mode. It owns:

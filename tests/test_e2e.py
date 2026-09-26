@@ -54,7 +54,8 @@ class EndToEndPlannerTests(unittest.TestCase):
             audit_artifact = json.loads((run / "src/audit/artifact.json").read_text())
             continuation = audit_artifact["next_prompt"]
             self.assertIn("Next task [inspect-source-007]", continuation)
-            self.assertIn("iamadityakumar/forge", continuation)
+            self.assertIn("robzilla1738/supergoal", continuation)
+            self.assertNotIn("iamadityakumar/forge", continuation)
             self.assertIn("Independent audit of existing unaccepted", continuation)
             audit = audit_artifact["audit_collection_prompt"]
             self.assertIn("qwadratic/create-mvp", audit)
