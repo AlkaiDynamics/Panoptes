@@ -112,8 +112,8 @@ def main(argv=None):
     control.add_argument("--state", required=True, help="Persistent Panoptes control-state JSON")
     control.add_argument("--output", required=True, help="Target-specific next-prompt artifact")
     control.add_argument("--result", help="Optional executor result from the preceding prompt")
-    control.add_argument("--capacity", help="Optional account-capacity JSON; when supplied, Panoptes runs only if allow_panoptes=true")
-    control.add_argument("--account", help="Expected account identifier for --capacity")
+    control.add_argument("--capacity", required=True, help="Current account-capacity JSON; Panoptes runs only if allow_panoptes=true")
+    control.add_argument("--account", required=True, help="Expected account identifier for --capacity")
     plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
     plan.add_argument("file")
     plan.add_argument("checkpoint", type=int)
@@ -232,19 +232,16 @@ def main(argv=None):
             capacity_state, account=args.account, now=now), indent=2))
         return
     if args.command == "control-run":
-        if bool(args.capacity) != bool(args.account):
-            raise ValueError("--capacity and --account must be supplied together")
-        if args.capacity:
-            with open(args.capacity, encoding="utf-8") as source:
-                capacity_state = json.load(source)
-            gate = evaluate_capacity_gate(capacity_state, account=args.account)
-            if not gate["allow_panoptes"]:
-                print(json.dumps({
-                    "status": "capacity-gated",
-                    "capacity": gate,
-                    "project_state_changed": False,
-                }, indent=2))
-                return
+        with open(args.capacity, encoding="utf-8") as source:
+            capacity_state = json.load(source)
+        gate = evaluate_capacity_gate(capacity_state, account=args.account)
+        if not gate["allow_panoptes"]:
+            print(json.dumps({
+                "status": "capacity-gated",
+                "capacity": gate,
+                "project_state_changed": False,
+            }, indent=2))
+            return
         paths = [Path(args.target).resolve(), Path(args.state).resolve(),
                  Path(args.output).resolve()]
         if args.result:

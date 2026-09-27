@@ -54,10 +54,12 @@ cat examples/e2e/build/report.md
 python -c 'import json; print(json.load(open("examples/e2e/src/audit/artifact.json"))["next_prompt"])'
 ```
 
-Run one idempotent Archotraz control invocation:
+Run one idempotent Archotraz control invocation. Supply a current, independently observed account record; the path below is a placeholder. Work admission must happen outside Panoptes before this command starts:
 
 ```sh
 python -m panoptes.cli control-run \
+  --capacity /path/to/current-alkai-capacity.json \
+  --account alkai \
   --target examples/archotraz/target-state.json \
   --state examples/archotraz/control-state.json \
   --output examples/archotraz/next-prompt.json
@@ -69,6 +71,8 @@ Ingest the result only after refreshing the target-state file from live GitHub e
 
 ```sh
 python -m panoptes.cli control-run \
+  --capacity /path/to/current-alkai-capacity.json \
+  --account alkai \
   --target examples/archotraz/target-state.json \
   --state examples/archotraz/control-state.json \
   --result archotraz-execution-result.json \

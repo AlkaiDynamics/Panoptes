@@ -204,6 +204,43 @@ class AccountCapacityTests(unittest.TestCase):
             self.assertFalse(control_state.exists())
             self.assertFalse(output.exists())
 
+    def test_control_run_requires_account_capacity_before_project_read(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            control_state = root / "control.json"
+            output = root / "next-prompt.json"
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    main([
+                        "control-run",
+                        "--target", str(root / "missing-target.json"),
+                        "--state", str(control_state),
+                        "--output", str(output),
+                    ])
+            self.assertNotEqual(raised.exception.code, 0)
+            self.assertFalse(control_state.exists())
+            self.assertFalse(output.exists())
+
+    def test_control_run_probe_only_does_not_touch_project_state(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            capacity = root / "capacity.json"
+            control_state = root / "control.json"
+            output = root / "next-prompt.json"
+            capacity.write_text(json.dumps(state("PROBE_AVAILABLE")), encoding="utf-8")
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                main([
+                    "control-run", "--capacity", str(capacity),
+                    "--account", "alkai",
+                    "--target", str(root / "missing-target.json"),
+                    "--state", str(control_state),
+                    "--output", str(output),
+                ])
+            self.assertEqual(json.loads(stdout.getvalue())["status"], "capacity-gated")
+            self.assertFalse(control_state.exists())
+            self.assertFalse(output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

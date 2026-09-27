@@ -4,6 +4,7 @@ import io
 import json
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 from panoptes.cli import main
@@ -12,6 +13,25 @@ from panoptes.control import run_invocation
 
 ARCHOTRAZ_REPO = "https://github.com/AlkaiDynamics/Archotraz"
 PANOPTES_REPO = "https://github.com/AlkaiDynamics/Panoptes"
+
+
+def capacity_args(root):
+    path = root / "capacity.json"
+    path.write_text(json.dumps({
+        "schema_version": "panoptes.account-capacity/v1",
+        "account": "alkai",
+        "status": "AVAILABLE",
+        "limit_type": None,
+        "observed_at": datetime.now().astimezone().isoformat(),
+        "reset_at": None,
+        "source": "manual",
+        "evidence": "test fixture",
+        "observation_freshness": "current",
+        "last_probe_at": None,
+        "last_probe_result": None,
+        "updated_by": "test fixture",
+    }), encoding="utf-8")
+    return ["--capacity", str(path), "--account", "alkai"]
 
 
 def unit(ident="shared-transformation-receipt"):
@@ -389,6 +409,7 @@ class ControlInvocationTests(unittest.TestCase):
             with contextlib.redirect_stdout(stdout):
                 main([
                     "control-run",
+                    *capacity_args(root),
                     "--target",
                     str(target),
                     "--state",
@@ -417,6 +438,7 @@ class ControlInvocationTests(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 main([
                     "control-run",
+                    *capacity_args(root),
                     "--target",
                     str(target),
                     "--state",
@@ -455,6 +477,7 @@ class ControlInvocationTests(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 main([
                     "control-run",
+                    *capacity_args(root),
                     "--target",
                     str(target),
                     "--state",
@@ -490,6 +513,7 @@ class ControlInvocationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "state is already locked"):
                 main([
                     "control-run",
+                    *capacity_args(root),
                     "--target",
                     str(target),
                     "--state",
