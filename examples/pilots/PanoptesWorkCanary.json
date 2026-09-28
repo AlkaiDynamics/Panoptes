@@ -1,0 +1,57 @@
+{
+  "schema_version": "panoptes.pilot-contract/v2",
+  "project": "Panoptes Work Canary",
+  "repository": "https://github.com/AlkaiDynamics/Panoptes",
+  "sandbox_ref": "sandbox/work-canary-20260928",
+  "execution_owner": "scheduled_work_task",
+  "goal": "Prove that a scheduled ChatGPT Work invocation can read Panoptes, make one bounded GitHub change on an isolated branch, persist an execution receipt, and leave enough durable state for the next heartbeat.",
+  "authority": [
+    "https://github.com/AlkaiDynamics/Panoptes/blob/main/docs/ARCHITECTURE.md",
+    "https://github.com/AlkaiDynamics/Panoptes/blob/main/docs/WORK_HEARTBEAT.md"
+  ],
+  "rules": [
+    "Never mutate main from the canary.",
+    "A task status message is not evidence; success requires a verified GitHub commit on the sandbox branch.",
+    "Do not use Interception, GEPA reflection, Archotraz, ARTTOO, or another project for the canary.",
+    "Do not infer account availability from an ordinary Work failure.",
+    "Persist the exact panoptes.execution-result/v1 receipt under .panoptes/results/<prompt_id>.json when executing a Panoptes-generated prompt."
+  ],
+  "units": [
+    {
+      "id": "scheduled-work-canary",
+      "objective": "Create one durable scheduled-Work canary receipt on the isolated Panoptes sandbox and verify it by re-reading GitHub.",
+      "acceptance_criteria": [
+        "A new commit exists on sandbox/work-canary-20260928 and main is unchanged.",
+        "The commit adds a canary evidence JSON containing execution timestamp, source main SHA, sandbox pre-run SHA, and scheduled_work_canary=passed.",
+        "The Work invocation re-reads the sandbox branch and verifies the new commit SHA before reporting success."
+      ],
+      "exclusions": [
+        "Do not modify main.",
+        "Do not merge, deploy, publish, or touch another repository.",
+        "Do not call Interception or perform model-comparison work."
+      ],
+      "depends_on": []
+    },
+    {
+      "id": "scheduled-work-continuation",
+      "objective": "Prove that the next Work heartbeat can discover the prior durable receipt and produce a distinct bounded continuation without redoing the canary write.",
+      "acceptance_criteria": [
+        "The prior canary evidence is discovered from durable repository state.",
+        "The prior canary unit is not re-executed.",
+        "A distinct continuation artifact or receipt is committed on the sandbox branch with causal reference to the prior canary commit."
+      ],
+      "exclusions": [
+        "Do not modify main.",
+        "Do not repeat scheduled-work-canary.",
+        "Do not broaden into another project."
+      ],
+      "depends_on": [
+        "scheduled-work-canary"
+      ]
+    }
+  ],
+  "result_storage": {
+    "target_receipt_dir": ".panoptes/results",
+    "canary_evidence_dir": ".panoptes/work-canary"
+  }
+}
