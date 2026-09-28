@@ -1,6 +1,7 @@
 """Manual interface for one bounded continuation cycle."""
 
 import argparse
+import asyncio
 from datetime import datetime
 from contextlib import contextmanager
 import json
@@ -16,6 +17,8 @@ from .integrations.brainstormer import plan_to_excalidraw
 from .integrations.qworld import advance_criteria_run, build_criteria_plan, start_criteria_run
 from .control import run_invocation
 from .account_capacity import evaluate_capacity_gate
+from .inference import InterceptionBackend
+from .reflective import progress_reflection
 
 
 def _write_json(path, payload):
@@ -116,6 +119,7 @@ def main(argv=None):
     control.add_argument("--capacity", required=True, help="Current account-capacity JSON; Panoptes runs only if allow_panoptes=true")
     control.add_argument("--account", required=True, help="Expected account identifier for --capacity")
     control.add_argument("--capacity-max-age-seconds", required=True, type=int, help="Maximum age of AVAILABLE or DEGRADED observation")
+    control.add_argument("--reflect-connection", help="Interception connection.json; hold a post-result prompt until reflection completes")
     plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
     plan.add_argument("file")
     plan.add_argument("checkpoint", type=int)
@@ -269,8 +273,21 @@ def main(argv=None):
                 control_state = None
             artifact, next_state, duplicate = run_invocation(
                 control_state, target_state, execution_result)
+            if next_state.get("reflection") and not args.reflect_connection:
+                raise ValueError("pending reflection requires --reflect-connection")
+            if args.reflect_connection:
+                backend = InterceptionBackend.from_connection(args.reflect_connection)
+                next_state, reflected, reflection_status = asyncio.run(
+                    progress_reflection(next_state, target_state, backend))
+                if reflected is not None:
+                    artifact = reflected
             if next_state != control_state:
                 _write_json(state_path, next_state)
+            if args.reflect_connection and reflection_status == "waiting":
+                print(json.dumps({"status": "waiting-for-reflection",
+                                  "request_id": next_state["reflection"]["request_id"],
+                                  "project_state_changed": next_state != control_state}, indent=2))
+                return
             _write_json(args.output, artifact)
         print(json.dumps({"prompt_id": artifact["prompt_id"],
                           "duplicate": duplicate,
