@@ -60,6 +60,7 @@ Run one idempotent Archotraz control invocation. Supply a current, independently
 python -m panoptes.cli control-run \
   --capacity /path/to/current-alkai-capacity.json \
   --account alkai \
+  --capacity-max-age-seconds 3600 \
   --target examples/archotraz/target-state.json \
   --state examples/archotraz/control-state.json \
   --output examples/archotraz/next-prompt.json
@@ -73,6 +74,7 @@ Ingest the result only after refreshing the target-state file from live GitHub e
 python -m panoptes.cli control-run \
   --capacity /path/to/current-alkai-capacity.json \
   --account alkai \
+  --capacity-max-age-seconds 3600 \
   --target examples/archotraz/target-state.json \
   --state examples/archotraz/control-state.json \
   --result archotraz-execution-result.json \

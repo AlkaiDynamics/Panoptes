@@ -31,7 +31,7 @@ def capacity_args(root):
         "last_probe_result": None,
         "updated_by": "test fixture",
     }), encoding="utf-8")
-    return ["--capacity", str(path), "--account", "alkai"]
+    return ["--capacity", str(path), "--account", "alkai", "--capacity-max-age-seconds", "3600"]
 
 
 def unit(ident="shared-transformation-receipt"):

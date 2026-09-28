@@ -105,6 +105,7 @@ def main(argv=None):
         "capacity-gate", help="Read one account-capacity observation and derive a read-only Work admission decision")
     capacity.add_argument("--state", required=True, help="panoptes.account-capacity/v1 JSON")
     capacity.add_argument("--account", required=True, help="Expected account identifier")
+    capacity.add_argument("--capacity-max-age-seconds", required=True, type=int, help="Maximum age of AVAILABLE or DEGRADED observation")
     capacity.add_argument("--now", help="Optional timezone-aware ISO-8601 time for deterministic evaluation")
     control = commands.add_parser(
         "control-run", help="Recover one scheduled control invocation and emit one target prompt")
@@ -114,6 +115,7 @@ def main(argv=None):
     control.add_argument("--result", help="Optional executor result from the preceding prompt")
     control.add_argument("--capacity", required=True, help="Current account-capacity JSON; Panoptes runs only if allow_panoptes=true")
     control.add_argument("--account", required=True, help="Expected account identifier for --capacity")
+    control.add_argument("--capacity-max-age-seconds", required=True, type=int, help="Maximum age of AVAILABLE or DEGRADED observation")
     plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
     plan.add_argument("file")
     plan.add_argument("checkpoint", type=int)
@@ -229,12 +231,15 @@ def main(argv=None):
             capacity_state = json.load(source)
         now = datetime.fromisoformat(args.now) if args.now else None
         print(json.dumps(evaluate_capacity_gate(
-            capacity_state, account=args.account, now=now), indent=2))
+            capacity_state, account=args.account, now=now,
+            max_age_seconds=args.capacity_max_age_seconds), indent=2))
         return
     if args.command == "control-run":
         with open(args.capacity, encoding="utf-8") as source:
             capacity_state = json.load(source)
-        gate = evaluate_capacity_gate(capacity_state, account=args.account)
+        gate = evaluate_capacity_gate(
+            capacity_state, account=args.account,
+            max_age_seconds=args.capacity_max_age_seconds)
         if not gate["allow_panoptes"]:
             print(json.dumps({
                 "status": "capacity-gated",

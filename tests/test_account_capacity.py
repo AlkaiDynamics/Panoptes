@@ -22,13 +22,14 @@ def state(
     limit_type=None,
     reset_at=None,
     freshness="current",
+    observed_at="2026-09-26T09:20:00-07:00",
 ):
     return {
         "schema_version": SCHEMA_VERSION,
         "account": account,
         "status": status,
         "limit_type": limit_type,
-        "observed_at": "2026-09-26T09:20:00-07:00",
+        "observed_at": observed_at,
         "reset_at": reset_at,
         "source": "manual",
         "evidence": f"explicit {status.lower()} observation",
@@ -45,6 +46,7 @@ class AccountCapacityTests(unittest.TestCase):
             state(),
             account="alkai",
             now=datetime.fromisoformat("2026-09-26T09:30:00-07:00"),
+            max_age_seconds=600,
         )
         self.assertTrue(decision["admit_work"])
         self.assertTrue(decision["allow_panoptes"])
@@ -57,6 +59,7 @@ class AccountCapacityTests(unittest.TestCase):
             state("DEGRADED"),
             account="alkai",
             now=datetime.fromisoformat("2026-09-26T09:30:00-07:00"),
+            max_age_seconds=600,
         )
         self.assertTrue(decision["admit_work"])
         self.assertTrue(decision["allow_panoptes"])
@@ -72,6 +75,7 @@ class AccountCapacityTests(unittest.TestCase):
             ),
             account="alkai",
             now=datetime.fromisoformat("2026-09-26T09:30:00-07:00"),
+            max_age_seconds=600,
         )
         self.assertFalse(decision["admit_work"])
         self.assertFalse(decision["allow_panoptes"])
@@ -91,6 +95,7 @@ class AccountCapacityTests(unittest.TestCase):
             record,
             account="alkai",
             now=datetime.fromisoformat("2026-09-28T14:25:00-07:00"),
+            max_age_seconds=600,
         )
         self.assertTrue(decision["admit_work"])
         self.assertFalse(decision["allow_panoptes"])
@@ -105,6 +110,7 @@ class AccountCapacityTests(unittest.TestCase):
             state("PROBE_AVAILABLE"),
             account="alkai",
             now=datetime.fromisoformat("2026-09-28T14:25:00-07:00"),
+            max_age_seconds=600,
         )
         self.assertTrue(decision["admit_work"])
         self.assertFalse(decision["allow_panoptes"])
@@ -115,6 +121,7 @@ class AccountCapacityTests(unittest.TestCase):
             state("AVAILABLE", freshness="stale"),
             account="alkai",
             now=datetime.fromisoformat("2026-09-26T09:30:00-07:00"),
+            max_age_seconds=600,
         )
         self.assertFalse(decision["admit_work"])
         self.assertFalse(decision["allow_panoptes"])
@@ -122,12 +129,58 @@ class AccountCapacityTests(unittest.TestCase):
             decision["reason"], "capacity_observation_not_current"
         )
 
+    def test_active_observation_age_boundary_and_future(self):
+        now = datetime.fromisoformat("2026-09-26T09:30:00-07:00")
+        for status in ("AVAILABLE", "DEGRADED"):
+            with self.subTest(status=status):
+                at_boundary = evaluate_capacity_gate(
+                    state(status), account="alkai", now=now, max_age_seconds=600)
+                self.assertTrue(at_boundary["allow_panoptes"])
+                expired = evaluate_capacity_gate(
+                    state(status, observed_at="2026-09-26T09:19:59-07:00"),
+                    account="alkai", now=now, max_age_seconds=600)
+                self.assertFalse(expired["allow_panoptes"])
+                self.assertFalse(expired["admit_work"])
+                self.assertEqual(expired["reason"], "capacity_observation_expired")
+                future = evaluate_capacity_gate(
+                    state(status, observed_at="2026-09-26T09:30:01-07:00"),
+                    account="alkai", now=now, max_age_seconds=600)
+                self.assertFalse(future["allow_panoptes"])
+                self.assertEqual(future["reason"], "capacity_observation_future_dated")
+
+    def test_invalid_max_age_fails_closed(self):
+        for invalid in (0, -1, True, 1.5):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError, "positive integer"):
+                evaluate_capacity_gate(state(), account="alkai",
+                                       now=datetime.fromisoformat("2026-09-26T09:30:00-07:00"),
+                                       max_age_seconds=invalid)
+
+    def test_expired_control_run_does_not_read_or_write_project_state(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            capacity = root / "capacity.json"
+            capacity.write_text(json.dumps(state(observed_at="2020-01-01T00:00:00+00:00")), encoding="utf-8")
+            control = root / "control.json"
+            output = root / "prompt.json"
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                main(["control-run", "--capacity", str(capacity), "--account", "alkai",
+                      "--capacity-max-age-seconds", "600",
+                      "--target", str(root / "missing-target.json"),
+                      "--state", str(control), "--output", str(output)])
+            result = json.loads(stdout.getvalue())
+            self.assertEqual(result["capacity"]["reason"], "capacity_observation_expired")
+            self.assertFalse(result["project_state_changed"])
+            self.assertFalse(control.exists())
+            self.assertFalse(output.exists())
+
     def test_accounts_cannot_be_cross_applied(self):
         with self.assertRaisesRegex(ValueError, "different account"):
             evaluate_capacity_gate(
                 state(account="alkai"),
                 account="zhenrez",
                 now=datetime.fromisoformat("2026-09-26T09:30:00-07:00"),
+                max_age_seconds=600,
             )
 
     def test_exhausted_requires_explicit_limit_type(self):
@@ -158,6 +211,7 @@ class AccountCapacityTests(unittest.TestCase):
                     str(path),
                     "--account",
                     "alkai",
+                    "--capacity-max-age-seconds", "600",
                     "--now",
                     "2026-09-26T09:30:00-07:00",
                 ])
@@ -190,6 +244,7 @@ class AccountCapacityTests(unittest.TestCase):
                     str(capacity),
                     "--account",
                     "alkai",
+                    "--capacity-max-age-seconds", "600",
                     "--target",
                     str(target),
                     "--state",
@@ -233,6 +288,7 @@ class AccountCapacityTests(unittest.TestCase):
                 main([
                     "control-run", "--capacity", str(capacity),
                     "--account", "alkai",
+                    "--capacity-max-age-seconds", "600",
                     "--target", str(root / "missing-target.json"),
                     "--state", str(control_state),
                     "--output", str(output),
