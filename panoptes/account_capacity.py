@@ -8,7 +8,7 @@ It never mutates capacity state and never infers exhaustion from a Work failure.
 from __future__ import annotations
 
 import copy
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 
@@ -107,6 +107,7 @@ def evaluate_capacity_gate(
     *,
     account: str | None = None,
     now: datetime | None = None,
+    max_age_seconds: int,
 ):
     """Derive a read-only heartbeat admission decision from explicit capacity state.
 
@@ -118,6 +119,8 @@ def evaluate_capacity_gate(
     current = now or datetime.now().astimezone()
     if current.tzinfo is None or current.utcoffset() is None:
         raise ValueError("now must include a timezone offset")
+    if isinstance(max_age_seconds, bool) or not isinstance(max_age_seconds, int) or max_age_seconds <= 0:
+        raise ValueError("max_age_seconds must be a positive integer")
 
     status = parsed["status"]
     reset_at = parsed["reset_at"]
@@ -139,8 +142,12 @@ def evaluate_capacity_gate(
         "observation_freshness": parsed["observation_freshness"],
     }
 
-    if parsed["observation_freshness"] != "current":
+    if parsed["observed_at"] > current:
+        decision["reason"] = "capacity_observation_future_dated"
+    elif parsed["observation_freshness"] != "current":
         decision["reason"] = "capacity_observation_not_current"
+    elif status in {"AVAILABLE", "DEGRADED"} and current - parsed["observed_at"] > timedelta(seconds=max_age_seconds):
+        decision["reason"] = "capacity_observation_expired"
     elif status == "AVAILABLE":
         decision.update(
             admit_work=True,
