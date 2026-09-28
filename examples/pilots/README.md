@@ -8,4 +8,8 @@ For each project, keep control and treatment on isolated branches at equivalent 
 
 Record: correct scope, passing behavior checks, repeated work, misunderstandings, human interventions, Work usage, and causal Run 1 → Run 2 continuation. An untested reflection candidate has no measured advantage. Do not promote the treatment or increment the independent acceptance ledger until the four real Work runs and comparison pass.
 
-Current engineering gaps: the target receipt discovery/cycle driver and independent dependency selector are not yet implemented; Interception's private GitHub → Work → RETURN → same-caller live proof remains outstanding. These contracts alone cannot run the pilot.
+The repository-native target receipt discovery/cycle driver and independent dependency selector are now implemented in `panoptes/pilot_cycle.py` and exposed as `panoptes pilot-cycle`. The executor's proposed next unit is retained as evidence while the pilot DAG independently selects the next dependency-ready unit.
+
+The first live execution gate is the Panoptes-only Work canary in `PanoptesWorkCanary.json` and `docs/WORK_HEARTBEAT.md`. A generic Scheduled Task does not satisfy this gate; the task must be created from Work mode and must produce a verified GitHub commit on the isolated canary branch.
+
+Still outstanding: the actual scheduled-Work canary receipt, the private GitHub → Work → RETURN → same-caller Interception proof, and the measured multi-run project comparison. Do not claim those gates from repository tests alone.
