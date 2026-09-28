@@ -83,6 +83,8 @@ python -m panoptes.cli control-run \
 
 The result's `completed_unit_id` must match the outstanding artifact. Its `next_unit` must exactly match the refreshed target state, and a verified result must advance to a different unit. These gates prevent a successful executor run from silently reissuing the work it just completed.
 
+For an **experimental model-guided Run 2**, add `--reflect-connection /path/to/.inference_bridge/connection.json` to both the result-ingestion invocation and its later polling invocation (omit `--result` when polling). Panoptes stores the Interception request ID in its existing control checkpoint and prints `waiting-for-reflection` without publishing prompt 2. After a validated RETURN, the next invocation emits a distinct prompt with the model's bounded reflection proposal. Keep the first artifact as the control and measure the two candidates against equivalent work; the reflection is an untested hypothesis until outcome evidence exists. See [pilot instructions](examples/pilots/README.md).
+
 ## Optional adapters
 
 ### Interception inference

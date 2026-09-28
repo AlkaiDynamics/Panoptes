@@ -1,0 +1,34 @@
+{
+  "schema_version": "panoptes.pilot-instructions/v1",
+  "project": "Archotraz",
+  "goal": "Advance the narrow Archotraz MVP with evidence-grounded transformations and dependency-valid continuation toward inspectable Kitchen candidates.",
+  "authority": [
+    "https://github.com/AlkaiDynamics/Archotraz/blob/main/docs/architecture/ARCHITECTURE_CONTRACT.md",
+    "https://github.com/AlkaiDynamics/Archotraz/pull/11",
+    "https://github.com/AlkaiDynamics/Archotraz/pull/10"
+  ],
+  "rules": [
+    "Reconcile live main, sandbox, PR #10, PR #11, and current tests before changing code.",
+    "Keep SQLite as canonical evidence state, Dry Mode as a capability policy, and UNKNOWN distinct from zero.",
+    "Shared transformation receipts are the first bounded unit only while still outstanding; never reissue an applied unit.",
+    "Do not merge design PR #11 or treat its draft as implemented behavior.",
+    "Preserve the stage boundary: Processor consumes Intake evidence and does not rediscover source."
+  ],
+  "current_state": {
+    "observed_main_and_sandbox_sha": "a48906982f003ee2ef8aca02b129299f8301fa3b",
+    "sandbox_ref": "sandbox/panoptes-gated-cycle-20260926",
+    "panoptes_prompt_1": "80c49b01dc9722160f38acc750c0bc45ccc847c87762bd729502ee8ff0f006fa",
+    "confirmed": ["PR #10 and PR #11 remain draft", "Prompt 1 is outstanding with no accepted target receipt"],
+    "next_unit": "shared-transformation-receipt, subject to fresh authority/lease reconciliation"
+  },
+  "result_storage": {
+    "target_receipt": ".panoptes/results/<prompt_id>.json on the Archotraz sandbox branch, committed with the implementation",
+    "panoptes_control": "project-scoped control state and prompt history in the Panoptes sandbox",
+    "envelope": "panoptes.execution-result/v1 with exact prompt ID, completed unit, target commit/ref, status, evidence, and proposed next unit"
+  },
+  "next_step_history": {
+    "source": "Archotraz live decomposition/combination evidence and architecture PR lineage",
+    "applied_ids": "Panoptes project-scoped completed_prompt_ids and applied_results",
+    "rule": "Run 2 must ingest prompt 1 once and independently select a distinct dependency-valid unit; never trust the executor's proposed next unit as the selector."
+  }
+}

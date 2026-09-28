@@ -1,0 +1,35 @@
+{
+  "schema_version": "panoptes.pilot-instructions/v1",
+  "project": "ARTTOO",
+  "goal": "Advance the frozen ARTTOO MVP checkpoints 0–4 through one canonical project lineage, starting with the remaining Checkpoint 1 evidence before placement work.",
+  "authority": [
+    "https://github.com/zhenrez/ARTTOO/blob/main/docs/authority/AUTHORITY.md",
+    "https://github.com/zhenrez/ARTTOO/blob/main/docs/authority/product/PRODUCT_SPEC.md",
+    "https://github.com/zhenrez/ARTTOO/blob/main/docs/authority/mvp-autopilot/AUTOMATION_SPEC.md",
+    "https://github.com/zhenrez/ARTTOO/blob/main/docs/authority/mvp-autopilot/STATE.md"
+  ],
+  "rules": [
+    "Recover live main, sandbox, PR, CI, and lease state before selecting a unit; verified repository evidence supersedes the stale STATE.md snapshot.",
+    "Respect Driver A/B and Governor leases. Do not race the existing implementation workers.",
+    "Keep one canonical versioned document and source lineage; do not introduce a second project or file shuttle.",
+    "Preserve checkpoint order and the golden journey. Use free/local/already authorized routes.",
+    "Treat model reflection as an untested proposal; record measured outcomes before calling it better."
+  ],
+  "current_state": {
+    "observed_main_and_sandbox_sha": "00353ff356ae9609ffd5ff8467f5bcaa6a5623ed",
+    "sandbox_ref": "sandbox/panoptes-arttoo-20260927",
+    "confirmed": ["PR #17 is merged", "Checkpoint 0 is complete", "Checkpoint 1 is partial"],
+    "stale_record": "STATE.md still calls PR #17 open and cites the earlier main head; refresh from live evidence before mutation",
+    "next_unit": "UNRESOLVED: derive from current dependency and lease evidence; do not copy Archotraz's receipt task"
+  },
+  "result_storage": {
+    "target_receipt": ".panoptes/results/<prompt_id>.json on the ARTTOO sandbox branch, committed with the implementation",
+    "panoptes_control": "project-scoped control state and prompt history in the Panoptes sandbox",
+    "envelope": "panoptes.execution-result/v1 with exact prompt ID, completed unit, target commit/ref, status, evidence, and proposed next unit"
+  },
+  "next_step_history": {
+    "source": "ARTTOO authority/mvp-autopilot/STATE.md plus live PR/CI history, reconciled per invocation",
+    "applied_ids": "Panoptes project-scoped completed_prompt_ids and applied_results",
+    "rule": "Run 2 must consume Run 1's verified receipt once; Panoptes selects a distinct dependency-valid unit. Executor proposals are evidence, not authority."
+  }
+}

@@ -4,10 +4,10 @@ This runbook operates the current Panoptes planner/continuation core. External C
 
 ## 1. Deployment target
 
-Current development branch:
+Verified baseline branch:
 
 ```text
-feature/prompt-engine-first-slice
+main
 ```
 
 Current repository:
@@ -16,7 +16,7 @@ Current repository:
 https://github.com/AlkaiDynamics/Panoptes
 ```
 
-For a production deployment, prefer a reviewed commit or merged `main`. If deploying the draft branch intentionally, record the exact commit SHA with the deployment receipt.
+Record the exact `main` SHA with each pilot receipt. A sandbox pilot is not a production deployment.
 
 ## 2. Runtime requirements
 
@@ -40,7 +40,7 @@ Optional:
 ```sh
 git clone https://github.com/AlkaiDynamics/Panoptes.git
 cd Panoptes
-git checkout feature/prompt-engine-first-slice
+git checkout main
 python -m venv .venv
 ```
 
