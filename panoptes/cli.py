@@ -19,6 +19,7 @@ from .control import run_invocation
 from .account_capacity import evaluate_capacity_gate
 from .inference import InterceptionBackend
 from .reflective import progress_reflection
+from .pilot_cycle import run_pilot_cycle
 
 
 def _write_json(path, payload):
@@ -120,6 +121,16 @@ def main(argv=None):
     control.add_argument("--account", required=True, help="Expected account identifier for --capacity")
     control.add_argument("--capacity-max-age-seconds", required=True, type=int, help="Maximum age of AVAILABLE or DEGRADED observation")
     control.add_argument("--reflect-connection", help="Interception connection.json; hold a post-result prompt until reflection completes")
+    pilot_cycle = commands.add_parser(
+        "pilot-cycle", help="Discover one target receipt, independently select the next unit, and emit one Work prompt")
+    pilot_cycle.add_argument("--pilot", required=True, help="panoptes.pilot-contract/v2 JSON")
+    pilot_cycle.add_argument("--target", required=True, help="Fresh panoptes.target-state/v1 JSON")
+    pilot_cycle.add_argument("--state", required=True, help="Persistent project-scoped control-state JSON")
+    pilot_cycle.add_argument("--target-root", required=True, help="Checkout root containing .panoptes/results")
+    pilot_cycle.add_argument("--output", required=True, help="Next-prompt artifact path")
+    pilot_cycle.add_argument("--capacity", required=True, help="Current account-capacity JSON")
+    pilot_cycle.add_argument("--account", required=True, help="Expected account identifier for --capacity")
+    pilot_cycle.add_argument("--capacity-max-age-seconds", required=True, type=int, help="Maximum age of AVAILABLE or DEGRADED observation")
     plan = commands.add_parser("plan-load", help="Install a JSON component DAG under a writer lease")
     plan.add_argument("file")
     plan.add_argument("checkpoint", type=int)
@@ -237,6 +248,60 @@ def main(argv=None):
         print(json.dumps(evaluate_capacity_gate(
             capacity_state, account=args.account, now=now,
             max_age_seconds=args.capacity_max_age_seconds), indent=2))
+        return
+    if args.command == "pilot-cycle":
+        with open(args.capacity, encoding="utf-8") as source:
+            capacity_state = json.load(source)
+        gate = evaluate_capacity_gate(
+            capacity_state, account=args.account,
+            max_age_seconds=args.capacity_max_age_seconds)
+        if not gate["allow_panoptes"]:
+            print(json.dumps({
+                "status": "capacity-gated",
+                "capacity": gate,
+                "project_state_changed": False,
+            }, indent=2))
+            return
+
+        paths = [Path(args.pilot).resolve(), Path(args.target).resolve(),
+                 Path(args.state).resolve(), Path(args.output).resolve()]
+        if len(paths) != len(set(paths)):
+            raise ValueError("pilot, target, state, and output paths must be distinct")
+        with open(args.pilot, encoding="utf-8") as source:
+            pilot_contract = json.load(source)
+        with open(args.target, encoding="utf-8") as source:
+            target_state = json.load(source)
+
+        state_path = Path(args.state).resolve()
+        with _state_write_lock(state_path):
+            if state_path.exists():
+                with state_path.open(encoding="utf-8") as source:
+                    control_state = json.load(source)
+            else:
+                control_state = None
+            result = run_pilot_cycle(
+                pilot_contract, target_state, control_state, args.target_root)
+            next_state = result.get("state")
+            if next_state != control_state:
+                _write_json(state_path, next_state)
+            artifact = result.get("artifact")
+            if artifact is not None:
+                _write_json(args.output, artifact)
+
+        summary = {
+            "status": result["status"],
+            "prompt_id": result.get("prompt_id"),
+            "result_discovered": result.get("result_discovered", False),
+            "project_state_changed": next_state != control_state,
+            "output": args.output if artifact is not None else None,
+        }
+        if result.get("selected_next_unit"):
+            summary["selected_next_unit"] = result["selected_next_unit"]["id"]
+        if result.get("executor_proposed_next_unit"):
+            proposal = result["executor_proposed_next_unit"]
+            summary["executor_proposed_next_unit"] = (
+                proposal.get("id") if isinstance(proposal, dict) else None)
+        print(json.dumps(summary, indent=2))
         return
     if args.command == "control-run":
         with open(args.capacity, encoding="utf-8") as source:
